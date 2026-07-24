@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const StudentVerification = require('../models/StudentVerification');
+const { sendOtpEmail } = require('../services/emailService');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 const generateToken = (user) => {
@@ -90,6 +91,14 @@ const register = async (req, res, next) => {
         role: 'student',
       };
     }
+
+    // Trigger real-time Email dispatch
+    await sendOtpEmail({
+      toEmail: user.email,
+      recipientName: user.fullName,
+      emailOtp,
+      phoneOtp,
+    });
 
     return successResponse(res, 201, 'Registration successful! Verification OTPs sent to your Email and Mobile Phone.', {
       email: user.email,
@@ -192,6 +201,13 @@ const resendOtps = async (req, res, next) => {
     user.emailOtp = emailOtp;
     user.phoneOtp = phoneOtp;
     await user.save();
+
+    await sendOtpEmail({
+      toEmail: user.email,
+      recipientName: user.fullName,
+      emailOtp,
+      phoneOtp,
+    });
 
     return successResponse(res, 200, 'New OTP codes sent to your Email and Mobile Phone', {
       emailOtp,

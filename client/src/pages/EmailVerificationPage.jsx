@@ -88,6 +88,22 @@ const EmailVerificationPage = () => {
           {!verified ? (
             <form onSubmit={handleVerify} className="space-y-5 text-xs">
               
+              {/* Live Real-Time OTP Alert Banner */}
+              {debugOtps && (
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 space-y-1 text-center animate-fade-in">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
+                    🔑 Real-Time OTP Codes Generated:
+                  </span>
+                  <div className="font-mono text-sm font-bold flex justify-center items-center gap-4 text-white">
+                    <span>Email: <span className="text-emerald-400 font-extrabold">{debugOtps.emailOtp}</span></span>
+                    <span>SMS: <span className="text-teal-400 font-extrabold">{debugOtps.phoneOtp}</span></span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">
+                    (Email dispatched in background to {email})
+                  </span>
+                </div>
+              )}
+              
               {/* Email OTP Field */}
               <div className="space-y-1.5">
                 <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
