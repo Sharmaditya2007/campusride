@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const StudentVerification = require('../models/StudentVerification');
 const { sendOtpEmail } = require('../services/emailService');
+const { sendOtpSms } = require('../services/smsService');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 const generateToken = (user) => {
@@ -92,11 +93,16 @@ const register = async (req, res, next) => {
       };
     }
 
-    // Trigger real-time Email dispatch
+    // Trigger real-time Email & SMS dispatch
     await sendOtpEmail({
       toEmail: user.email,
       recipientName: user.fullName,
       emailOtp,
+      phoneOtp,
+    });
+
+    await sendOtpSms({
+      toPhone: user.phone,
       phoneOtp,
     });
 
