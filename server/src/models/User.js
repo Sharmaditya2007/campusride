@@ -15,6 +15,25 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    phone: {
+      type: String,
+      required: [true, 'Mobile phone number is required'],
+      trim: true,
+    },
+    emailOtp: {
+      type: String,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    phoneOtp: {
+      type: String,
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     passwordHash: {
       type: String,
       required: [true, 'Password is required'],

@@ -1,9 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe, forgotPassword, resetPassword } = require('../controllers/authController');
+const {
+  register,
+  verifyOtps,
+  resendOtps,
+  login,
+  getMe,
+  forgotPassword,
+  resetPassword,
+} = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
+router.post('/verify-otps', verifyOtps);
+router.post('/resend-otps', resendOtps);
 router.post('/login', login);
 router.get('/me', protect, getMe);
 router.post('/forgot-password', forgotPassword);

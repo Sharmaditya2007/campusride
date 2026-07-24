@@ -1,21 +1,72 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { useNotifications } from '../context/NotificationContext';
-import { MailCheck, CheckCircle2, ShieldCheck } from 'lucide-react';
+import api from '../services/api';
+import { MailCheck, Phone, ShieldCheck, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
 
 const EmailVerificationPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { showToast } = useNotifications();
-  const [otp, setOtp] = useState('');
-  const [verified, setVerified] = useState(false);
 
-  const handleVerify = (e) => {
+  const state = location.state || {};
+  const email = state.email || '';
+  const phone = state.phone || '';
+  const debugOtps = state.debugOtps || null;
+
+  const [emailOtp, setEmailOtp] = useState(debugOtps?.emailOtp || '');
+  const [phoneOtp, setPhoneOtp] = useState(debugOtps?.phoneOtp || '');
+  const [loading, setLoading] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleVerify = async (e) => {
     e.preventDefault();
-    if (otp === '123456' || otp.length === 6) {
-      setVerified(true);
-      showToast('University Email Verified! Verified Student Badge unlocked.', 'success');
-    } else {
-      showToast('Please enter a valid 6-digit OTP code', 'error');
+    if (!emailOtp || !phoneOtp) {
+      showToast('Please enter both Email OTP and Mobile SMS OTP', 'error');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await api.post('/auth/verify-otps', {
+        email,
+        emailOtp,
+        phoneOtp,
+      });
+
+      if (res.success) {
+        if (res.data?.token) {
+          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+        }
+        setVerified(true);
+        showToast('✅ Identity & Mobile Phone verified successfully!', 'success');
+        setTimeout(() => {
+          navigate('/find-ride');
+          window.location.reload();
+        }, 1500);
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'OTP verification failed. Please check the codes entered.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      const res = await api.post('/auth/resend-otps', { email });
+      if (res.success) {
+        showToast('New OTP codes sent to your Email and Mobile Phone', 'info');
+        if (res.data?.emailOtp) setEmailOtp(res.data.emailOtp);
+        if (res.data?.phoneOtp) setPhoneOtp(res.data.phoneOtp);
+      }
+    } catch (err) {
+      showToast('Failed to resend OTPs', 'error');
     }
   };
 
@@ -23,46 +74,106 @@ const EmailVerificationPage = () => {
     <MainLayout>
       <div className="max-w-md mx-auto py-12">
         <div className="glass-card p-8 rounded-3xl border-slate-800 space-y-6">
+          
           <div className="text-center space-y-2">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
-              <MailCheck className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6" />
             </div>
-            <h2 className="text-2xl font-extrabold text-white">Email & OTP Verification</h2>
-            <p className="text-xs text-slate-400">Enter 6-digit confirmation code sent to your campus email</p>
+            <h2 className="text-2xl font-extrabold text-white">Security & Identity OTP Verification</h2>
+            <p className="text-xs text-slate-400">
+              Verify your University Email & Mobile Phone number to activate your student account.
+            </p>
           </div>
 
           {!verified ? (
-            <form onSubmit={handleVerify} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Verification Code (OTP)</label>
+            <form onSubmit={handleVerify} className="space-y-5 text-xs">
+              
+              {/* Email OTP Field */}
+              <div className="space-y-1.5">
+                <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
+                  <MailCheck className="w-4 h-4 text-emerald-400" />
+                  University Email OTP (6 Digits)
+                </label>
                 <input
                   type="text"
                   maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="123456"
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center text-xl font-bold font-mono tracking-widest text-slate-200 focus:outline-none focus:border-emerald-500"
+                  value={emailOtp}
+                  onChange={(e) => setEmailOtp(e.target.value)}
+                  placeholder="e.g. 748291"
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center text-lg font-bold font-mono tracking-widest text-slate-100 focus:outline-none focus:border-emerald-500"
                   required
                 />
+                <span className="text-[10px] text-slate-500 block text-center">
+                  Sent to {email || 'your university email'}
+                </span>
               </div>
+
+              {/* Mobile Phone SMS OTP Field */}
+              <div className="space-y-1.5">
+                <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 text-teal-400" />
+                  Mobile Phone SMS OTP (6 Digits)
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={phoneOtp}
+                  onChange={(e) => setPhoneOtp(e.target.value)}
+                  placeholder="e.g. 519284"
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center text-lg font-bold font-mono tracking-widest text-slate-100 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+                <span className="text-[10px] text-slate-500 block text-center">
+                  Sent via SMS to {phone || 'your mobile number'}
+                </span>
+              </div>
+
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm hover:opacity-90 shadow-md shadow-emerald-500/20"
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm hover:opacity-90 shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2"
               >
-                VERIFY EMAIL BADGE
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                ) : (
+                  'VERIFY STUDENT BADGE & CONTINUE'
+                )}
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  className="text-xs text-slate-400 hover:text-emerald-400 flex items-center justify-center gap-1 mx-auto"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Resend OTP Codes
+                </button>
+              </div>
+
             </form>
           ) : (
-            <div className="text-center py-4 space-y-3">
+            <div className="text-center py-6 space-y-4">
               <ShieldCheck className="w-16 h-16 text-emerald-400 mx-auto animate-bounce" />
-              <h4 className="text-lg font-extrabold text-white">Student Email Verified!</h4>
-              <p className="text-xs text-slate-400">Your Verified Student Badge is active across ride searches.</p>
-              <Link to="/find-ride" className="px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold inline-block mt-2">
-                Browse Campus Rides
+              <h4 className="text-xl font-extrabold text-white">Student Account Verified!</h4>
+              <p className="text-xs text-slate-400">
+                Your Email and Mobile Phone have been authenticated. Verified Student Badge unlocked!
+              </p>
+              <Link
+                to="/find-ride"
+                className="px-6 py-3 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold inline-block"
+              >
+                Browse Campus Rides Now
               </Link>
             </div>
           )}
+
         </div>
       </div>
     </MainLayout>
