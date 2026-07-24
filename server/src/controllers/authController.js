@@ -98,7 +98,6 @@ const register = async (req, res, next) => {
       toEmail: user.email,
       recipientName: user.fullName,
       emailOtp,
-      phoneOtp,
     });
 
     await sendOtpSms({
@@ -212,6 +211,10 @@ const resendOtps = async (req, res, next) => {
       toEmail: user.email,
       recipientName: user.fullName,
       emailOtp,
+    });
+
+    await sendOtpSms({
+      toPhone: user.phone,
       phoneOtp,
     });
 

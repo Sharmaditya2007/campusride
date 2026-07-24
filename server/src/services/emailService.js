@@ -1,13 +1,12 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Send real-time OTP verification email to registered student
+ * Send real-time Email OTP verification email to registered student
  */
-const sendOtpEmail = async ({ toEmail, recipientName, emailOtp, phoneOtp }) => {
+const sendOtpEmail = async ({ toEmail, recipientName, emailOtp }) => {
   try {
     let transporter;
 
-    // Check if SMTP environment variables exist
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -19,7 +18,6 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp, phoneOtp }) => {
         },
       });
     } else {
-      // Use Ethereal test SMTP service for instant real email delivery testing
       const testAccount = await nodemailer.createTestAccount();
       transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
@@ -33,23 +31,18 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp, phoneOtp }) => {
     }
 
     const mailOptions = {
-      from: '"CampusRide Safety Team" <no-reply@campusride.edu>',
+      from: '"CampusRide Security" <campusride2026@gmail.com>',
       to: toEmail,
-      subject: `🔑 Your CampusRide Verification OTP Code: ${emailOtp}`,
+      subject: `🔑 Your CampusRide Email Verification Code: ${emailOtp}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #090d16; color: #f8fafc; padding: 30px; border-radius: 16px; border: 1px solid #1e293b;">
-          <h2 style="color: #10b981; margin-top: 0;">CampusRide Verification</h2>
+          <h2 style="color: #10b981; margin-top: 0;">CampusRide Email Verification</h2>
           <p>Hello <strong>${recipientName || 'Student'}</strong>,</p>
-          <p>Thank you for registering on <strong>CampusRide</strong>. To verify your student identity and mobile phone number, use the real-time OTP codes below:</p>
+          <p>Thank you for registering on <strong>CampusRide</strong>. Use the 6-digit Email OTP code below to verify your campus email address:</p>
           
-          <div style="background: #0f172a; padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; border: 1px solid #334155;">
+          <div style="background: #0f172a; padding: 25px; border-radius: 12px; text-align: center; margin: 20px 0; border: 1px solid #334155;">
             <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">University Email OTP</div>
-            <div style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 6px; margin: 8px 0;">${emailOtp}</div>
-            
-            <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;" />
-            
-            <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Mobile SMS OTP</div>
-            <div style="font-size: 32px; font-weight: bold; color: #06b6d4; letter-spacing: 6px; margin: 8px 0;">${phoneOtp}</div>
+            <div style="font-size: 36px; font-weight: bold; color: #10b981; letter-spacing: 8px; margin-top: 8px;">${emailOtp}</div>
           </div>
 
           <p style="font-size: 12px; color: #94a3b8;">This code is valid for 10 minutes. Please do not share this OTP with anyone.</p>
@@ -59,11 +52,7 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp, phoneOtp }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    if (previewUrl) {
-      console.log('[Email OTP Sent] Ethereal Live Email Link:', previewUrl);
-    }
-    return { success: true, previewUrl };
+    return { success: true };
   } catch (error) {
     console.error('[Email OTP Service Error]', error.message);
     return { success: false, error: error.message };
