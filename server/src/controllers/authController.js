@@ -108,11 +108,6 @@ const register = async (req, res, next) => {
     return successResponse(res, 201, 'Registration successful! Verification OTPs sent to your Email and Mobile Phone.', {
       email: user.email,
       phone: user.phone,
-      // For immediate verification testing in sandbox
-      debugOtps: {
-        emailOtp,
-        phoneOtp,
-      },
     });
   } catch (error) {
     next(error);

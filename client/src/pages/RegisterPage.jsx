@@ -44,7 +44,6 @@ const RegisterPage = () => {
           state: {
             email: formData.email,
             phone: formData.phone,
-            debugOtps: res.data?.debugOtps,
           },
         });
       }

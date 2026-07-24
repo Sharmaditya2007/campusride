@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
-import { MailCheck, Phone, ShieldCheck, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
+import { MailCheck, Phone, ShieldCheck, RefreshCw, AlertCircle } from 'lucide-react';
 
 const EmailVerificationPage = () => {
   const location = useLocation();
@@ -13,10 +13,9 @@ const EmailVerificationPage = () => {
   const state = location.state || {};
   const email = state.email || '';
   const phone = state.phone || '';
-  const debugOtps = state.debugOtps || null;
 
-  const [emailOtp, setEmailOtp] = useState(debugOtps?.emailOtp || '');
-  const [phoneOtp, setPhoneOtp] = useState(debugOtps?.phoneOtp || '');
+  const [emailOtp, setEmailOtp] = useState('');
+  const [phoneOtp, setPhoneOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -62,8 +61,6 @@ const EmailVerificationPage = () => {
       const res = await api.post('/auth/resend-otps', { email });
       if (res.success) {
         showToast('New OTP codes sent to your Email and Mobile Phone', 'info');
-        if (res.data?.emailOtp) setEmailOtp(res.data.emailOtp);
-        if (res.data?.phoneOtp) setPhoneOtp(res.data.phoneOtp);
       }
     } catch (err) {
       showToast('Failed to resend OTPs', 'error');
@@ -81,41 +78,25 @@ const EmailVerificationPage = () => {
             </div>
             <h2 className="text-2xl font-extrabold text-white">Security & Identity OTP Verification</h2>
             <p className="text-xs text-slate-400">
-              Verify your University Email & Mobile Phone number to activate your student account.
+              Check your email inbox & mobile phone to enter your 6-digit verification codes.
             </p>
           </div>
 
           {!verified ? (
             <form onSubmit={handleVerify} className="space-y-5 text-xs">
               
-              {/* Live Real-Time OTP Alert Banner */}
-              {debugOtps && (
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 space-y-1 text-center animate-fade-in">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    🔑 Real-Time OTP Codes Generated:
-                  </span>
-                  <div className="font-mono text-sm font-bold flex justify-center items-center gap-4 text-white">
-                    <span>Email: <span className="text-emerald-400 font-extrabold">{debugOtps.emailOtp}</span></span>
-                    <span>SMS: <span className="text-teal-400 font-extrabold">{debugOtps.phoneOtp}</span></span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 block">
-                    (Email dispatched in background to {email})
-                  </span>
-                </div>
-              )}
-              
               {/* Email OTP Field */}
               <div className="space-y-1.5">
                 <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
                   <MailCheck className="w-4 h-4 text-emerald-400" />
-                  University Email OTP (6 Digits)
+                  University Email OTP (Check your inbox)
                 </label>
                 <input
                   type="text"
                   maxLength={6}
                   value={emailOtp}
                   onChange={(e) => setEmailOtp(e.target.value)}
-                  placeholder="e.g. 748291"
+                  placeholder="Enter 6-digit code sent to email"
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center text-lg font-bold font-mono tracking-widest text-slate-100 focus:outline-none focus:border-emerald-500"
                   required
                 />
@@ -128,14 +109,14 @@ const EmailVerificationPage = () => {
               <div className="space-y-1.5">
                 <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
                   <Phone className="w-4 h-4 text-teal-400" />
-                  Mobile Phone SMS OTP (6 Digits)
+                  Mobile Phone SMS OTP (Check mobile messages)
                 </label>
                 <input
                   type="text"
                   maxLength={6}
                   value={phoneOtp}
                   onChange={(e) => setPhoneOtp(e.target.value)}
-                  placeholder="e.g. 519284"
+                  placeholder="Enter 6-digit code sent to phone"
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center text-lg font-bold font-mono tracking-widest text-slate-100 focus:outline-none focus:border-emerald-500"
                   required
                 />
