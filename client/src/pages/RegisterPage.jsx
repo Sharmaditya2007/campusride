@@ -5,7 +5,9 @@ import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
 import { INDIAN_UNIVERSITIES } from '../constants/indianUniversities';
 import OtpVerificationModal from '../components/auth/OtpVerificationModal';
-import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone, Camera, Check } from 'lucide-react';
+import LiveSelfieModal from '../components/auth/LiveSelfieModal';
+import { validateHumanFace } from '../services/faceValidationService';
+import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone, Camera, CheckCircle2, ShieldCheck, Upload, RefreshCw } from 'lucide-react';
 
 const RegisterPage = () => {
   const { showToast } = useNotifications();
@@ -24,9 +26,14 @@ const RegisterPage = () => {
 
   const [profileImage, setProfileImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [isFaceVerified, setIsFaceVerified] = useState(false);
+  const [analyzingFace, setAnalyzingFace] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSelfieModalOpen, setIsSelfieModalOpen] = useState(false);
 
+  // Handle Uploaded File with AI Face Detection
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -36,20 +43,41 @@ const RegisterPage = () => {
       return;
     }
 
+    setAnalyzingFace(true);
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileImage(reader.result);
-      setImagePreview(reader.result);
-      showToast('Profile picture uploaded successfully!', 'success');
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+
+      // Run AI Face Detection
+      const aiResult = await validateHumanFace(base64);
+      setAnalyzingFace(false);
+
+      if (!aiResult.isValid) {
+        showToast(aiResult.reason || '⚠️ No valid human face detected in uploaded photo. Please upload a clear student face selfie.', 'error');
+        setIsFaceVerified(false);
+        return;
+      }
+
+      setProfileImage(base64);
+      setImagePreview(base64);
+      setIsFaceVerified(true);
+      showToast('✅ Real Human Face Verified!', 'success');
     };
     reader.readAsDataURL(file);
+  };
+
+  // Handle Live Selfie Capture from Webcam
+  const handleSelfieCapture = (capturedBase64) => {
+    setProfileImage(capturedBase64);
+    setImagePreview(capturedBase64);
+    setIsFaceVerified(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!profileImage) {
-      showToast('Please upload your Student Profile Picture before continuing.', 'error');
+    if (!profileImage || !isFaceVerified) {
+      showToast('⚠️ Please upload or snap a verified student profile picture before continuing.', 'error');
       return;
     }
 
@@ -104,33 +132,62 @@ const RegisterPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5 text-xs">
             
-            {/* Mandatory Profile Picture Upload */}
-            <div className="flex flex-col items-center justify-center space-y-2 pb-2">
-              <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 flex items-center justify-center bg-slate-950 overflow-hidden group cursor-pointer shadow-lg shadow-emerald-500/10">
+            {/* AI Face Verified Profile Picture Section */}
+            <div className="flex flex-col items-center justify-center space-y-3 pb-2 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+              <div className="relative w-24 h-24 rounded-full border-2 border-emerald-500/60 flex items-center justify-center bg-slate-900 overflow-hidden shadow-lg shadow-emerald-500/10">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-slate-500 group-hover:text-emerald-400 transition text-center p-2">
-                    <Camera className="w-6 h-6 mb-1 text-emerald-400 animate-bounce" />
-                    <span className="text-[10px] font-extrabold text-emerald-300">Upload Photo</span>
+                  <div className="flex flex-col items-center justify-center text-slate-500 text-center p-2">
+                    <Camera className="w-6 h-6 mb-1 text-emerald-400" />
+                    <span className="text-[10px] font-extrabold text-slate-400">No Photo</span>
                   </div>
                 )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </div>
-              <p className="text-[11px] text-slate-300 font-semibold flex items-center gap-1">
-                {imagePreview ? (
-                  <span className="text-emerald-400 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Photo Attached</span>
-                ) : (
-                  <>
-                    <span className="text-emerald-400 font-bold">* Mandatory:</span> Upload your profile picture
-                  </>
+
+                {analyzingFace && (
+                  <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center text-emerald-400">
+                    <RefreshCw className="w-6 h-6 animate-spin" />
+                  </div>
                 )}
-              </p>
+              </div>
+
+              {/* Status Badge */}
+              <div className="text-center space-y-1">
+                {isFaceVerified ? (
+                  <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[11px] border border-emerald-500/40 flex items-center gap-1.5 justify-center mx-auto">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    Real Human Face Verified
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-amber-400 font-bold flex items-center gap-1 justify-center">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Mandatory AI Human Face Verification
+                  </span>
+                )}
+              </div>
+
+              {/* Action Buttons: Dual Option (Upload File or Snap Selfie) */}
+              <div className="flex items-center gap-2 w-full max-w-xs pt-1">
+                <label className="flex-1 py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-200 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition">
+                  <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                  📁 Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSelfieModalOpen(true)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-[11px] flex items-center justify-center gap-1.5 transition shadow-md shadow-emerald-500/20"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  📸 Snap Selfie
+                </button>
+              </div>
             </div>
 
             {/* Full Name & Student ID */}
@@ -274,6 +331,13 @@ const RegisterPage = () => {
 
         </div>
       </div>
+
+      {/* Live Webcam Selfie Capture Modal */}
+      <LiveSelfieModal
+        isOpen={isSelfieModalOpen}
+        onClose={() => setIsSelfieModalOpen(false)}
+        onCapture={handleSelfieCapture}
+      />
 
       {/* In-Page OTP Verification Modal */}
       <OtpVerificationModal
