@@ -145,7 +145,7 @@ const LoginPage = () => {
                 <form onSubmit={handleSendOtp} className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Registered Email Address or Mobile Phone
+                      Registered Email Address
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
