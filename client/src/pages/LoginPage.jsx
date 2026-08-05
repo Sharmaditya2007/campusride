@@ -24,6 +24,7 @@ const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [emailOtp, setEmailOtp] = useState('');
   const [otpNotice, setOtpNotice] = useState('');
+  const [whatsAppUrl, setWhatsAppUrl] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
 
   // Handle Classic Password Login
@@ -42,7 +43,7 @@ const LoginPage = () => {
     }
   };
 
-  // Step 1: Request Real-Time OTP to Email/Phone
+  // Step 1: Request Real-Time OTP to Email/Phone/WhatsApp
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!identifier || identifier.trim().length < 4) {
@@ -54,9 +55,12 @@ const LoginPage = () => {
     try {
       const res = await api.post('/auth/send-login-otp', { identifier });
       if (res.success) {
-        showToast('Real-Time OTP sent to your Email & Phone!', 'success');
+        showToast('Real-Time OTP sent to your Email & WhatsApp!', 'success');
+        if (res.data?.whatsAppUrl) {
+          setWhatsAppUrl(res.data.whatsAppUrl);
+        }
         if (res.data?.emailOtp) {
-          setOtpNotice(`OTP sent! (Demo Code: ${res.data.emailOtp})`);
+          setOtpNotice(`OTP Code: ${res.data.emailOtp}`);
         }
         setOtpStep(2);
       }
@@ -226,6 +230,18 @@ const LoginPage = () => {
                       </>
                     )}
                   </button>
+
+                  {/* Direct WhatsApp OTP Dispatch Link */}
+                  {whatsAppUrl && (
+                    <a
+                      href={whatsAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-2 transition shadow-md"
+                    >
+                      💬 Receive / Open OTP in WhatsApp
+                    </a>
+                  )}
 
                   <div className="text-center pt-2">
                     <button

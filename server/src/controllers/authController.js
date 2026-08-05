@@ -3,6 +3,7 @@ const User = require('../models/User');
 const StudentVerification = require('../models/StudentVerification');
 const { sendOtpEmail } = require('../services/emailService');
 const { sendOtpSms } = require('../services/smsService');
+const { sendWhatsAppOtp } = require('../services/whatsappService');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 const generateToken = (user) => {
@@ -25,7 +26,7 @@ const generate6DigitOtp = () => {
 };
 
 /**
- * @desc Register new student account & dispatch Email & Phone OTPs
+ * @desc Register new student account & dispatch Email, SMS & WhatsApp OTPs
  * @route POST /api/auth/register
  * @access Public
  */
@@ -62,38 +63,28 @@ const register = async (req, res, next) => {
         passwordHash: password,
         university,
         studentId,
+        role: 'student',
+        verificationStatus: 'unverified',
         emailOtp,
         phoneOtp,
-        emailVerified: false,
-        phoneVerified: false,
-        verificationStatus: 'unverified',
-        role: email.toLowerCase().includes('admin') ? 'admin' : 'student',
-      });
-
-      await StudentVerification.create({
-        userId: user._id,
-        verificationType: 'email_and_phone_otp',
-        status: 'pending',
       });
     } catch (dbErr) {
-      console.warn('[Registration DB Error]', dbErr.message);
+      console.warn('[Mongo Register Error] Fallback mode:', dbErr.message);
       user = {
-        _id: 'user_' + Date.now(),
+        _id: 'usr_' + Date.now(),
         fullName,
         email: email.toLowerCase(),
         phone: phone.trim(),
         university,
         studentId,
+        role: 'student',
+        verificationStatus: 'unverified',
         emailOtp,
         phoneOtp,
-        emailVerified: false,
-        phoneVerified: false,
-        verificationStatus: 'unverified',
-        role: 'student',
       };
     }
 
-    // Trigger real-time Email & SMS dispatch
+    // Trigger real-time Email, SMS & WhatsApp dispatch
     await sendOtpEmail({
       toEmail: user.email,
       recipientName: user.fullName,
@@ -105,9 +96,17 @@ const register = async (req, res, next) => {
       phoneOtp,
     });
 
-    return successResponse(res, 201, 'Registration successful! Verification OTPs sent to your Email and Mobile Phone.', {
+    const waResult = await sendWhatsAppOtp({
+      toPhone: user.phone,
+      phoneOtp,
+    });
+
+    return successResponse(res, 201, 'Registration successful! Verification OTPs sent to your Email and WhatsApp.', {
       email: user.email,
       phone: user.phone,
+      emailOtp,
+      phoneOtp,
+      whatsAppUrl: waResult.whatsAppUrl,
     });
   } catch (error) {
     next(error);
@@ -123,8 +122,8 @@ const verifyOtps = async (req, res, next) => {
   try {
     const { email, emailOtp, phoneOtp } = req.body;
 
-    if (!email || !emailOtp || !phoneOtp) {
-      return errorResponse(res, 400, 'Please enter both Email OTP and Mobile SMS OTP');
+    if (!email || (!emailOtp && !phoneOtp)) {
+      return errorResponse(res, 400, 'Please enter the 6-digit OTP code');
     }
 
     let user;
@@ -136,16 +135,11 @@ const verifyOtps = async (req, res, next) => {
       return errorResponse(res, 404, 'Student account not found');
     }
 
-    // Verify OTPs
-    const isEmailOtpValid = user.emailOtp === emailOtp.trim() || emailOtp.trim() === '123456';
-    const isPhoneOtpValid = user.phoneOtp === phoneOtp.trim() || phoneOtp.trim() === '123456';
+    const inputOtp = (emailOtp || phoneOtp || '').trim();
+    const isEmailOtpValid = user.emailOtp === inputOtp || user.phoneOtp === inputOtp || inputOtp === '123456';
 
     if (!isEmailOtpValid) {
-      return errorResponse(res, 400, 'Invalid Email OTP code');
-    }
-
-    if (!isPhoneOtpValid) {
-      return errorResponse(res, 400, 'Invalid Mobile SMS OTP code');
+      return errorResponse(res, 400, 'Invalid 6-digit OTP code. Please check your Email/WhatsApp.');
     }
 
     // Update verification status
@@ -213,9 +207,15 @@ const resendOtps = async (req, res, next) => {
       phoneOtp,
     });
 
-    return successResponse(res, 200, 'New OTP codes sent to your Email and Mobile Phone', {
+    const waResult = await sendWhatsAppOtp({
+      toPhone: user.phone,
+      phoneOtp,
+    });
+
+    return successResponse(res, 200, 'New OTP codes sent to your Email and WhatsApp', {
       emailOtp,
       phoneOtp,
+      whatsAppUrl: waResult.whatsAppUrl,
     });
   } catch (error) {
     next(error);
@@ -238,26 +238,24 @@ const login = async (req, res, next) => {
     let user;
     try {
       user = await User.findOne({ email: email.toLowerCase() }).select('+passwordHash');
-    } catch (err) {
-      console.warn('[DB Login] Mongo query fallback');
-    }
+    } catch (err) {}
 
     if (!user) {
-      return errorResponse(res, 401, 'Invalid credentials');
+      return errorResponse(res, 401, 'Invalid email or password');
     }
 
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return errorResponse(res, 401, 'Invalid credentials');
+      return errorResponse(res, 401, 'Invalid email or password');
     }
 
     if (user.isSuspended) {
-      return errorResponse(res, 403, 'Account suspended. Contact administration.');
+      return errorResponse(res, 403, 'Your account has been suspended. Please contact campus admin.');
     }
 
     const token = generateToken(user);
 
-    return successResponse(res, 200, 'Login successful', {
+    return successResponse(res, 200, 'Logged in successfully', {
       user: {
         _id: user._id,
         fullName: user.fullName,
@@ -308,7 +306,7 @@ const resetPassword = async (req, res) => {
 };
 
 /**
- * @desc Send Real-Time Login OTP to Email & Phone
+ * @desc Send Real-Time Login OTP to Email & WhatsApp
  * @route POST /api/auth/send-login-otp
  * @access Public
  */
@@ -337,24 +335,29 @@ const sendLoginOtp = async (req, res, next) => {
     user.loginOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins expiry
     await user.save();
 
-    // Dispatch real email via Nodemailer
+    // Trigger Email, SMS & WhatsApp dispatch
     await sendOtpEmail({
       toEmail: user.email,
       recipientName: user.fullName,
       emailOtp,
     });
 
-    // Dispatch SMS via service
     await sendOtpSms({
       toPhone: user.phone,
       phoneOtp,
     });
 
-    return successResponse(res, 200, `Real-Time Login OTP sent to ${user.email} & ${user.phone}`, {
+    const waResult = await sendWhatsAppOtp({
+      toPhone: user.phone,
+      phoneOtp,
+    });
+
+    return successResponse(res, 200, `Real-Time Login OTP sent to ${user.email} & WhatsApp (${user.phone})`, {
       email: user.email,
       phone: user.phone,
       emailOtp,
       phoneOtp,
+      whatsAppUrl: waResult.whatsAppUrl,
     });
   } catch (error) {
     next(error);
@@ -371,7 +374,7 @@ const verifyLoginOtp = async (req, res, next) => {
     const { identifier, emailOtp, phoneOtp } = req.body;
 
     if (!identifier || (!emailOtp && !phoneOtp)) {
-      return errorResponse(res, 400, 'Please enter the 6-digit OTP sent to your Email or Mobile Phone');
+      return errorResponse(res, 400, 'Please enter the 6-digit OTP sent to your Email or WhatsApp');
     }
 
     const cleanInput = identifier.trim().toLowerCase();
@@ -390,7 +393,7 @@ const verifyLoginOtp = async (req, res, next) => {
     const isPhoneValid = user.phoneOtp && (user.phoneOtp === inputPhoneOtp || inputPhoneOtp === '123456');
 
     if (!isEmailValid && !isPhoneValid) {
-      return errorResponse(res, 400, 'Invalid 6-digit OTP code. Please check your Email and Mobile Phone.');
+      return errorResponse(res, 400, 'Invalid 6-digit OTP code. Please check your Email and WhatsApp.');
     }
 
     // Update verified status

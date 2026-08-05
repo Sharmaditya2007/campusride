@@ -16,14 +16,15 @@ const EmailVerificationPage = () => {
 
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
+  const [whatsAppUrl, setWhatsAppUrl] = useState(state.whatsAppUrl || '');
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleVerify = async (e) => {
     e.preventDefault();
-    if (!emailOtp || !phoneOtp) {
-      showToast('Please enter both Email OTP and Mobile SMS OTP', 'error');
+    if (!emailOtp && !phoneOtp) {
+      showToast('Please enter the 6-digit OTP code', 'error');
       return;
     }
 
@@ -33,20 +34,19 @@ const EmailVerificationPage = () => {
     try {
       const res = await api.post('/auth/verify-otps', {
         email,
-        emailOtp,
-        phoneOtp,
+        emailOtp: emailOtp || phoneOtp,
+        phoneOtp: phoneOtp || emailOtp,
       });
 
       if (res.success) {
         if (res.data?.token) {
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('user', JSON.stringify(res.data.user));
+          localStorage.setItem('campusride_token', res.data.token);
+          localStorage.setItem('campusride_user', JSON.stringify(res.data.user));
         }
         setVerified(true);
         showToast('✅ Identity & Mobile Phone verified successfully!', 'success');
         setTimeout(() => {
-          navigate('/find-ride');
-          window.location.reload();
+          window.location.href = '/find-ride';
         }, 1500);
       }
     } catch (err) {
@@ -60,7 +60,10 @@ const EmailVerificationPage = () => {
     try {
       const res = await api.post('/auth/resend-otps', { email });
       if (res.success) {
-        showToast('New OTP codes sent to your Email and Mobile Phone', 'info');
+        if (res.data?.whatsAppUrl) {
+          setWhatsAppUrl(res.data.whatsAppUrl);
+        }
+        showToast('New OTP codes sent to your Email and WhatsApp!', 'info');
       }
     } catch (err) {
       showToast('Failed to resend OTPs', 'error');
@@ -143,6 +146,17 @@ const EmailVerificationPage = () => {
                   'VERIFY STUDENT BADGE & CONTINUE'
                 )}
               </button>
+
+              {whatsAppUrl && (
+                <a
+                  href={whatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-2 transition text-center shadow-md"
+                >
+                  💬 Receive / Open OTP in WhatsApp
+                </a>
+              )}
 
               <div className="text-center pt-2">
                 <button
