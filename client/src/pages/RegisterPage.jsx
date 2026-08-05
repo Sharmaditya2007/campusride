@@ -16,7 +16,7 @@ const RegisterPage = () => {
     phone: '',
     password: '',
     confirmPassword: '',
-    university: INDIAN_UNIVERSITIES[0],
+    university: '',
     customUniversity: '',
     studentId: '',
   });
