@@ -57,7 +57,7 @@ const RegisterPage = () => {
     }
 
     const finalUniversity =
-      formData.university.includes('Other University') && formData.customUniversity
+      (formData.university || '').includes('Other University') && formData.customUniversity
         ? formData.customUniversity.trim()
         : formData.university;
 
