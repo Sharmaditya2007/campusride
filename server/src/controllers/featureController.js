@@ -65,32 +65,6 @@ const getCommuteGroups = async (req, res, next) => {
         .populate('members', 'fullName profileImage');
     } catch (err) {}
 
-    if (groups.length === 0) {
-      groups = [
-        {
-          _id: 'cg_1',
-          name: 'Mohali Phase 7 Morning Carpoolers',
-          route: { source: 'Mohali Phase 7', destination: 'University Campus' },
-          scheduleTime: '08:00 AM',
-          maxMembers: 4,
-          members: [
-            { fullName: 'Aditya Sharma', profileImage: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200' },
-            { fullName: 'Simran Kaur', profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200' },
-          ],
-        },
-        {
-          _id: 'cg_2',
-          name: 'Sector 17 Express Commuters',
-          route: { source: 'Sector 17, Chandigarh', destination: 'Engineering Block' },
-          scheduleTime: '08:30 AM',
-          maxMembers: 4,
-          members: [
-            { fullName: 'Vikram Mehta', profileImage: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=200' },
-          ],
-        },
-      ];
-    }
-
     return successResponse(res, 200, 'Commute groups fetched', groups);
   } catch (error) {
     next(error);

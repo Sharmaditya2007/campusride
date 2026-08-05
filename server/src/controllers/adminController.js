@@ -8,36 +8,29 @@ const { successResponse, errorResponse } = require('../utils/responseHelper');
 // @route   GET /api/admin/dashboard
 const getAdminDashboardStats = async (req, res, next) => {
   try {
-    let totalUsers = 154;
-    let verifiedUsers = 138;
-    let pendingVerifications = 8;
-    let totalRides = 342;
-    let activeRides = 14;
-    let completedRides = 310;
-    let cancelledRides = 18;
-    let totalReports = 3;
+    const totalUsers = await User.countDocuments();
+    const verifiedUsers = await User.countDocuments({ verificationStatus: 'verified' });
+    const pendingStudentVerifications = await StudentVerification.countDocuments({ status: 'pending' });
+    const pendingDriverVerifications = await DriverProfile.countDocuments({ verificationStatus: 'pending' });
+    const totalRides = await Ride.countDocuments();
+    const activeRides = await Ride.countDocuments({ status: { $in: ['scheduled', 'started', 'requests_received'] } });
+    const completedRides = await Ride.countDocuments({ status: 'completed' });
+    const cancelledRides = await Ride.countDocuments({ status: 'cancelled' });
+    const totalReports = await Report.countDocuments({ status: 'pending' });
 
-    try {
-      totalUsers = await User.countDocuments();
-      verifiedUsers = await User.countDocuments({ verificationStatus: 'verified' });
-      pendingVerifications = await StudentVerification.countDocuments({ status: 'pending' }) + await DriverProfile.countDocuments({ verificationStatus: 'pending' });
-      totalRides = await Ride.countDocuments();
-      activeRides = await Ride.countDocuments({ status: { $in: ['scheduled', 'started', 'requests_received'] } });
-      completedRides = await Ride.countDocuments({ status: 'completed' });
-      cancelledRides = await Ride.countDocuments({ status: 'cancelled' });
-      totalReports = await Report.countDocuments({ status: 'pending' });
-    } catch (err) {}
+    // Dynamic CO2 calculation: ~3.8kg CO2 saved per completed ride
+    const co2SavedKg = Math.round(completedRides * 3.8 * 10) / 10;
 
     return successResponse(res, 200, 'Admin metrics retrieved', {
-      totalUsers: totalUsers || 154,
-      verifiedUsers: verifiedUsers || 138,
-      pendingVerifications: pendingVerifications || 8,
-      totalRides: totalRides || 342,
-      activeRides: activeRides || 14,
-      completedRides: completedRides || 310,
-      cancelledRides: cancelledRides || 18,
-      totalReports: totalReports || 3,
-      co2SavedKg: 5444.8,
+      totalUsers,
+      verifiedUsers,
+      pendingVerifications: pendingStudentVerifications + pendingDriverVerifications,
+      totalRides,
+      activeRides,
+      completedRides,
+      cancelledRides,
+      totalReports,
+      co2SavedKg,
     });
   } catch (error) {
     next(error);
@@ -47,49 +40,12 @@ const getAdminDashboardStats = async (req, res, next) => {
 // @route   GET /api/admin/users
 const getUsersList = async (req, res, next) => {
   try {
-    let users = [];
-    try {
-      users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
-    } catch (err) {}
-
-    if (users.length === 0) {
-      users = [
-        {
-          _id: '66a000000000000000000001',
-          fullName: 'Campus Admin',
-          email: 'admin@campusride.edu',
-          university: 'State University',
-          studentId: 'ADM-001',
-          role: 'admin',
-          verificationStatus: 'verified',
-          isSuspended: false,
-          rating: 5.0,
-        },
-        {
-          _id: '66a000000000000000000002',
-          fullName: 'Aman Sharma',
-          email: 'aman@student.edu',
-          university: 'State Tech University',
-          studentId: 'STU-9921',
-          role: 'student',
-          verificationStatus: 'verified',
-          isSuspended: false,
-          rating: 4.9,
-        },
-        {
-          _id: '66a000000000000000000003',
-          fullName: 'Neha Kapoor',
-          email: 'neha@chitkara.edu',
-          university: 'Chitkara University',
-          studentId: 'CHK-4410',
-          role: 'student',
-          verificationStatus: 'pending',
-          isSuspended: false,
-          rating: 4.8,
-        },
-      ];
-    }
-
+    const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
+    return successResponse(res, 200, 'User list retrieved', users);
+// @route   GET /api/admin/users
+const getUsersList = async (req, res, next) => {
+  try {
+    const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
     return successResponse(res, 200, 'Users retrieved for admin', users);
   } catch (error) {
     next(error);
