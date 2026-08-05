@@ -24,13 +24,14 @@ const io = new Server(server, {
 setupChatSocket(io);
 
 const PORT = process.env.PORT || 5000;
+const liveUrl = process.env.RENDER_EXTERNAL_URL || 'https://campusride-server.onrender.com';
 
 server.listen(PORT, () => {
   console.log(`
   ======================================================
   🚗 CampusRide Full-Stack Server Running on Port ${PORT}
   🌍 Environment: ${process.env.NODE_ENV || 'development'}
-  🔗 API Health: http://localhost:${PORT}/api/health
+  🔗 Live API Health: ${liveUrl}/api/health
   ======================================================
   `);
 });
