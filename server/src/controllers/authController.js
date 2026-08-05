@@ -712,12 +712,8 @@ const completeSignup = async (req, res, next) => {
       return errorResponse(res, 404, 'Pending signup session expired or not found. Please start sign up again.');
     }
 
-    if (!pending.emailVerified || !pending.whatsappVerified) {
-      return errorResponse(
-        res,
-        400,
-        `Account creation blocked! You must verify BOTH Email and WhatsApp numbers. Current status: Email=${pending.emailVerified ? 'VERIFIED' : 'PENDING'}, WhatsApp=${pending.whatsappVerified ? 'VERIFIED' : 'PENDING'}`
-      );
+    if (!pending.emailVerified) {
+      return errorResponse(res, 400, 'Account creation blocked! You must verify your University Email OTP first.');
     }
 
     // Create official User document in Database

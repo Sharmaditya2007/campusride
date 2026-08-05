@@ -50,19 +50,11 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      // 1. Send Email OTP
+      // Send Email OTP
       await api.post('/auth/send-email-otp', payload);
-
-      // 2. Send WhatsApp OTP via Meta WhatsApp Cloud API
-      const waRes = await api.post('/auth/send-whatsapp-otp', payload);
-
       setLoading(false);
 
-      if (waRes.data?.whatsAppUrl) {
-        setWhatsAppUrl(waRes.data.whatsAppUrl);
-      }
-
-      showToast('🔑 Verification OTPs sent to your Email and WhatsApp!', 'success');
+      showToast('🔑 6-digit Email OTP sent to your university email address!', 'success');
       // Open in-page OTP verification modal seamlessly without redirecting
       setIsModalOpen(true);
     } catch (err) {
