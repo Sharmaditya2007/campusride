@@ -4,7 +4,8 @@ import MainLayout from '../layouts/MainLayout';
 import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
 import { INDIAN_UNIVERSITIES } from '../constants/indianUniversities';
-import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone, Search } from 'lucide-react';
+import OtpVerificationModal from '../components/auth/OtpVerificationModal';
+import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone } from 'lucide-react';
 
 const RegisterPage = () => {
   const { showToast } = useNotifications();
@@ -21,12 +22,9 @@ const RegisterPage = () => {
     studentId: '',
   });
 
-  const [searchFilter, setSearchFilter] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const filteredUniversities = INDIAN_UNIVERSITIES.filter((u) =>
-    u.toLowerCase().includes(searchFilter.toLowerCase())
-  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [whatsAppUrl, setWhatsAppUrl] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,29 +43,31 @@ const RegisterPage = () => {
         ? formData.customUniversity.trim()
         : formData.university;
 
+    const payload = {
+      ...formData,
+      university: finalUniversity,
+    };
+
     setLoading(true);
     try {
-      const res = await api.post('/auth/initiate-signup', {
-        ...formData,
-        university: finalUniversity,
-      });
+      // 1. Send Email OTP
+      await api.post('/auth/send-email-otp', payload);
+
+      // 2. Send WhatsApp OTP via Meta WhatsApp Cloud API
+      const waRes = await api.post('/auth/send-whatsapp-otp', payload);
+
       setLoading(false);
 
-      if (res.success) {
-        showToast('Registration initiated! Verification OTPs sent to your Email & WhatsApp.', 'success');
-        navigate('/verify-account', {
-          state: {
-            email: formData.email,
-            phone: formData.phone,
-            whatsAppUrl: res.data?.whatsAppUrl,
-            emailOtpDemo: res.data?.emailOtp,
-            whatsappOtpDemo: res.data?.whatsappOtp,
-          },
-        });
+      if (waRes.data?.whatsAppUrl) {
+        setWhatsAppUrl(waRes.data.whatsAppUrl);
       }
+
+      showToast('🔑 Verification OTPs sent to your Email and WhatsApp!', 'success');
+      // Open in-page OTP verification modal seamlessly without redirecting
+      setIsModalOpen(true);
     } catch (err) {
       setLoading(false);
-      showToast(err.message || 'Registration failed.', 'error');
+      showToast(err.message || 'Failed to dispatch verification OTPs. Please check credentials.', 'error');
     }
   };
 
@@ -86,7 +86,7 @@ const RegisterPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             
-            {/* Full Name & Roll No */}
+            {/* Full Name & Student ID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Full Name</label>
@@ -119,8 +119,7 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            {/* University Selection with Filter */}
-            {/* University Selection with Searchable Datalist */}
+            {/* University Selection */}
             <div className="space-y-1.5">
               <label className="block font-semibold text-slate-300 flex justify-between items-center">
                 <span>University / College Name ({INDIAN_UNIVERSITIES.length}+ Listed)</span>
@@ -235,6 +234,14 @@ const RegisterPage = () => {
 
         </div>
       </div>
+
+      {/* In-Page OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        formData={formData}
+        initialWhatsAppUrl={whatsAppUrl}
+      />
     </MainLayout>
   );
 };

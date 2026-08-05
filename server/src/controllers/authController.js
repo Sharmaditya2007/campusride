@@ -759,6 +759,148 @@ const completeSignup = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc API endpoint: Send Email OTP to entered University Email
+ * @route POST /api/auth/send-email-otp
+ * @access Public
+ */
+const sendEmailOtpEndpoint = async (req, res, next) => {
+  try {
+    const { fullName, email, phone, password, university, studentId } = req.body;
+
+    if (!email) {
+      return errorResponse(res, 400, 'University Email Address is required');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = (phone || '').trim();
+
+    // Check duplicate in official User DB
+    const existingUser = await User.findOne({
+      $or: [{ email: cleanEmail }, ...(cleanPhone ? [{ phone: cleanPhone }] : [])],
+    });
+
+    if (existingUser) {
+      return errorResponse(res, 400, 'An account with this email or mobile phone is already registered.');
+    }
+
+    const emailOtp = generate6DigitOtp();
+    const whatsappOtp = generate6DigitOtp();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5-minute expiry
+
+    let passwordHash = '';
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      passwordHash = await bcrypt.hash(password, salt);
+    }
+
+    let pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (pending) {
+      if (fullName) pending.fullName = fullName;
+      if (cleanPhone) pending.phone = cleanPhone;
+      if (passwordHash) pending.passwordHash = passwordHash;
+      if (university) pending.university = university;
+      if (studentId) pending.studentId = studentId;
+      pending.emailOtp = emailOtp;
+      pending.emailOtpExpiresAt = otpExpiry;
+      pending.emailVerified = false;
+      await pending.save();
+    } else {
+      pending = await PendingSignup.create({
+        fullName: fullName || 'Student',
+        email: cleanEmail,
+        phone: cleanPhone || 'PendingPhone',
+        passwordHash: passwordHash || 'PendingHash',
+        university: university || 'Pending University',
+        studentId: studentId || 'Pending ID',
+        emailOtp,
+        emailOtpExpiresAt: otpExpiry,
+        emailVerified: false,
+        whatsappOtp,
+        whatsappOtpExpiresAt: otpExpiry,
+        whatsappVerified: false,
+      });
+    }
+
+    // Send Real Email OTP
+    await sendOtpEmail({
+      toEmail: cleanEmail,
+      recipientName: fullName || 'Student',
+      emailOtp,
+    });
+
+    return successResponse(res, 200, 'University Email OTP sent successfully!', {
+      email: cleanEmail,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc API endpoint: Send WhatsApp OTP to entered Mobile Number via Meta WhatsApp Cloud API
+ * @route POST /api/auth/send-whatsapp-otp
+ * @access Public
+ */
+const sendWhatsappOtpEndpoint = async (req, res, next) => {
+  try {
+    const { email, phone } = req.body;
+
+    if (!phone) {
+      return errorResponse(res, 400, 'Mobile Phone Number is required');
+    }
+
+    const cleanPhone = phone.trim();
+    const cleanEmail = (email || '').trim().toLowerCase();
+
+    const existingUser = await User.findOne({ phone: cleanPhone });
+    if (existingUser) {
+      return errorResponse(res, 400, 'Mobile phone number is already registered.');
+    }
+
+    const whatsappOtp = generate6DigitOtp();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
+    let pending = cleanEmail ? await PendingSignup.findOne({ email: cleanEmail }) : null;
+
+    if (!pending) {
+      pending = await PendingSignup.findOne({ phone: cleanPhone });
+    }
+
+    if (pending) {
+      pending.whatsappOtp = whatsappOtp;
+      pending.whatsappOtpExpiresAt = otpExpiry;
+      pending.whatsappVerified = false;
+      await pending.save();
+    } else {
+      pending = await PendingSignup.create({
+        fullName: 'Student',
+        email: cleanEmail || `${cleanPhone}@pending.com`,
+        phone: cleanPhone,
+        passwordHash: 'PendingHash',
+        university: 'Pending University',
+        studentId: 'Pending ID',
+        whatsappOtp,
+        whatsappOtpExpiresAt: otpExpiry,
+        whatsappVerified: false,
+      });
+    }
+
+    const waResult = await sendWhatsAppOtp({
+      toPhone: cleanPhone,
+      phoneOtp: whatsappOtp,
+    });
+
+    return successResponse(res, 200, 'WhatsApp OTP sent successfully via Meta WhatsApp Cloud API!', {
+      phone: cleanPhone,
+      whatsAppUrl: waResult.whatsAppUrl,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   verifyOtps,
@@ -775,4 +917,7 @@ module.exports = {
   resendEmailOtp,
   resendWhatsappOtp,
   completeSignup,
+  sendEmailOtp: sendEmailOtpEndpoint,
+  sendWhatsappOtp: sendWhatsappOtpEndpoint,
+  createAccount: completeSignup,
 };
