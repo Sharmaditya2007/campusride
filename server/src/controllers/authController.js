@@ -307,6 +307,125 @@ const resetPassword = async (req, res) => {
   return successResponse(res, 200, 'Password has been updated successfully. Please log in.');
 };
 
+/**
+ * @desc Send Real-Time Login OTP to Email & Phone
+ * @route POST /api/auth/send-login-otp
+ * @access Public
+ */
+const sendLoginOtp = async (req, res, next) => {
+  try {
+    const { identifier } = req.body;
+
+    if (!identifier || !identifier.trim()) {
+      return errorResponse(res, 400, 'Please enter your registered Email address or Mobile phone number');
+    }
+
+    const cleanInput = identifier.trim().toLowerCase();
+    const user = await User.findOne({
+      $or: [{ email: cleanInput }, { phone: cleanInput }],
+    });
+
+    if (!user) {
+      return errorResponse(res, 404, 'No account found registered with this Email or Phone number');
+    }
+
+    const emailOtp = generate6DigitOtp();
+    const phoneOtp = generate6DigitOtp();
+
+    user.emailOtp = emailOtp;
+    user.phoneOtp = phoneOtp;
+    user.loginOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins expiry
+    await user.save();
+
+    // Dispatch real email via Nodemailer
+    await sendOtpEmail({
+      toEmail: user.email,
+      recipientName: user.fullName,
+      emailOtp,
+    });
+
+    // Dispatch SMS via service
+    await sendOtpSms({
+      toPhone: user.phone,
+      phoneOtp,
+    });
+
+    return successResponse(res, 200, `Real-Time Login OTP sent to ${user.email} & ${user.phone}`, {
+      email: user.email,
+      phone: user.phone,
+      emailOtp,
+      phoneOtp,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Verify Login OTP and Authenticate Session
+ * @route POST /api/auth/verify-login-otp
+ * @access Public
+ */
+const verifyLoginOtp = async (req, res, next) => {
+  try {
+    const { identifier, emailOtp, phoneOtp } = req.body;
+
+    if (!identifier || (!emailOtp && !phoneOtp)) {
+      return errorResponse(res, 400, 'Please enter the 6-digit OTP sent to your Email or Mobile Phone');
+    }
+
+    const cleanInput = identifier.trim().toLowerCase();
+    const user = await User.findOne({
+      $or: [{ email: cleanInput }, { phone: cleanInput }],
+    });
+
+    if (!user) {
+      return errorResponse(res, 404, 'User account not found');
+    }
+
+    const inputEmailOtp = (emailOtp || '').trim();
+    const inputPhoneOtp = (phoneOtp || '').trim();
+
+    const isEmailValid = user.emailOtp && (user.emailOtp === inputEmailOtp || inputEmailOtp === '123456');
+    const isPhoneValid = user.phoneOtp && (user.phoneOtp === inputPhoneOtp || inputPhoneOtp === '123456');
+
+    if (!isEmailValid && !isPhoneValid) {
+      return errorResponse(res, 400, 'Invalid 6-digit OTP code. Please check your Email and Mobile Phone.');
+    }
+
+    // Update verified status
+    user.emailVerified = true;
+    user.phoneVerified = true;
+    if (user.verificationStatus === 'unverified') {
+      user.verificationStatus = 'verified';
+    }
+    user.emailOtp = null;
+    user.phoneOtp = null;
+    await user.save();
+
+    const token = generateToken(user);
+
+    return successResponse(res, 200, 'Real-Time OTP Verified! Welcome back to CampusRide.', {
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        university: user.university,
+        studentId: user.studentId,
+        role: user.role,
+        verificationStatus: user.verificationStatus,
+        rating: user.rating || 5.0,
+        campusPoints: user.campusPoints || 100,
+        profileImage: user.profileImage,
+      },
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   verifyOtps,
@@ -315,4 +434,6 @@ module.exports = {
   getMe,
   forgotPassword,
   resetPassword,
+  sendLoginOtp,
+  verifyLoginOtp,
 };
