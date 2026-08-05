@@ -38,10 +38,21 @@ const UserDashboardPage = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [walletRes, bookedRes] = await Promise.all([
+        const [meRes, walletRes, bookedRes] = await Promise.all([
+          api.get('/auth/me').catch(() => ({ success: false })),
           api.get('/payments/wallet').catch(() => ({ success: false })),
           api.get('/my-rides/booked').catch(() => ({ success: false, data: [] })),
         ]);
+
+        if (meRes.success && meRes.data?.user) {
+          const u = meRes.data.user;
+          setStats((prev) => ({
+            ...prev,
+            campusPoints: u.campusPoints || 100,
+            ridesTaken: u.ridesTakenCount || 0,
+            ridesOffered: u.ridesOfferedCount || 0,
+          }));
+        }
 
         if (walletRes.success && walletRes.data) {
           setStats((prev) => ({

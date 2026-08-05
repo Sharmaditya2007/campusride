@@ -83,12 +83,12 @@ const ProfilePage = () => {
 
               <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Rides Offered</span>
-                <span className="font-extrabold text-white text-sm mt-0.5 block">{user?.ridesOfferedCount || 12}</span>
+                <span className="font-extrabold text-white text-sm mt-0.5 block">{user?.ridesOfferedCount || 0}</span>
               </div>
 
               <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Rides Taken</span>
-                <span className="font-extrabold text-teal-400 text-sm mt-0.5 block">{user?.ridesTakenCount || 15}</span>
+                <span className="font-extrabold text-teal-400 text-sm mt-0.5 block">{user?.ridesTakenCount || 0}</span>
               </div>
             </div>
 

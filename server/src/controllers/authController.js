@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const PendingSignup = require('../models/PendingSignup');
 const StudentVerification = require('../models/StudentVerification');
+const Ride = require('../models/Ride');
+const RideRequest = require('../models/RideRequest');
 const { sendOtpEmail } = require('../services/emailService');
 const { sendOtpSms } = require('../services/smsService');
 const { sendWhatsAppOtp } = require('../services/whatsappService');
@@ -285,14 +287,19 @@ const login = async (req, res, next) => {
  */
 const getMe = async (req, res, next) => {
   try {
-    let user;
-    try {
-      user = await User.findById(req.user._id);
-    } catch (err) {
-      user = req.user;
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return errorResponse(res, 404, 'Account not found');
     }
 
-    return successResponse(res, 200, 'User profile fetched', { user });
+    const ridesOfferedCount = await Ride.countDocuments({ hostId: user._id });
+    const ridesTakenCount = await RideRequest.countDocuments({ passengerId: user._id, status: 'accepted' });
+
+    const userObj = user.toObject();
+    userObj.ridesOfferedCount = ridesOfferedCount;
+    userObj.ridesTakenCount = ridesTakenCount;
+
+    return successResponse(res, 200, 'User profile fetched', { user: userObj });
   } catch (error) {
     next(error);
   }
@@ -724,6 +731,7 @@ const completeSignup = async (req, res, next) => {
       passwordHash: pending.passwordHash,
       university: pending.university,
       studentId: pending.studentId,
+      profileImage: pending.profileImage || '',
       role: 'student',
       verificationStatus: 'verified',
       emailVerified: true,
@@ -735,7 +743,7 @@ const completeSignup = async (req, res, next) => {
 
     const token = generateToken(user);
 
-    return successResponse(res, 201, '🎉 Student account created successfully! Both Email & WhatsApp verified.', {
+    return successResponse(res, 201, '🎉 Student account created successfully! Email verified.', {
       user: {
         _id: user._id,
         fullName: user.fullName,
@@ -743,10 +751,13 @@ const completeSignup = async (req, res, next) => {
         phone: user.phone,
         university: user.university,
         studentId: user.studentId,
+        profileImage: user.profileImage || '',
         role: user.role,
         verificationStatus: 'verified',
         rating: 5.0,
         campusPoints: 100,
+        ridesOfferedCount: 0,
+        ridesTakenCount: 0,
       },
       token,
     });
@@ -762,10 +773,14 @@ const completeSignup = async (req, res, next) => {
  */
 const sendEmailOtpEndpoint = async (req, res, next) => {
   try {
-    const { fullName, email, phone, password, university, studentId } = req.body;
+    const { fullName, email, phone, password, university, studentId, profileImage } = req.body;
 
     if (!email) {
       return errorResponse(res, 400, 'University Email Address is required');
+    }
+
+    if (!profileImage || !profileImage.trim()) {
+      return errorResponse(res, 400, 'Student Profile Picture is required. Please upload your profile photo.');
     }
 
     const cleanEmail = email.trim().toLowerCase();
@@ -798,6 +813,7 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
       if (passwordHash) pending.passwordHash = passwordHash;
       if (university) pending.university = university;
       if (studentId) pending.studentId = studentId;
+      if (profileImage) pending.profileImage = profileImage;
       pending.emailOtp = emailOtp;
       pending.emailOtpExpiresAt = otpExpiry;
       pending.emailVerified = false;
@@ -810,6 +826,7 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
         passwordHash: passwordHash || 'PendingHash',
         university: university || 'Pending University',
         studentId: studentId || 'Pending ID',
+        profileImage: profileImage || '',
         emailOtp,
         emailOtpExpiresAt: otpExpiry,
         emailVerified: false,

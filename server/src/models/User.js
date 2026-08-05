@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema(
     },
     profileImage: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+      default: '',
     },
     bio: {
       type: String,

@@ -5,7 +5,7 @@ import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
 import { INDIAN_UNIVERSITIES } from '../constants/indianUniversities';
 import OtpVerificationModal from '../components/auth/OtpVerificationModal';
-import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, GraduationCap, CreditCard, Phone, Camera, Check } from 'lucide-react';
 
 const RegisterPage = () => {
   const { showToast } = useNotifications();
@@ -22,12 +22,37 @@ const RegisterPage = () => {
     studentId: '',
   });
 
+  const [profileImage, setProfileImage] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [whatsAppUrl, setWhatsAppUrl] = useState('');
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image size must be under 5MB', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result);
+      setImagePreview(reader.result);
+      showToast('Profile picture uploaded successfully!', 'success');
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!profileImage) {
+      showToast('Please upload your Student Profile Picture before continuing.', 'error');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       showToast('Passwords do not match!', 'error');
       return;
@@ -46,6 +71,7 @@ const RegisterPage = () => {
     const payload = {
       ...formData,
       university: finalUniversity,
+      profileImage,
     };
 
     setLoading(true);
@@ -76,8 +102,37 @@ const RegisterPage = () => {
             <p className="text-xs text-slate-400">One account allows both finding and offering college rides.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <form onSubmit={handleSubmit} className="space-y-5 text-xs">
             
+            {/* Mandatory Profile Picture Upload */}
+            <div className="flex flex-col items-center justify-center space-y-2 pb-2">
+              <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 flex items-center justify-center bg-slate-950 overflow-hidden group cursor-pointer shadow-lg shadow-emerald-500/10">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-500 group-hover:text-emerald-400 transition text-center p-2">
+                    <Camera className="w-6 h-6 mb-1 text-emerald-400 animate-bounce" />
+                    <span className="text-[10px] font-extrabold text-emerald-300">Upload Photo</span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </div>
+              <p className="text-[11px] text-slate-300 font-semibold flex items-center gap-1">
+                {imagePreview ? (
+                  <span className="text-emerald-400 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Photo Attached</span>
+                ) : (
+                  <>
+                    <span className="text-emerald-400 font-bold">* Mandatory:</span> Upload your profile picture
+                  </>
+                )}
+              </p>
+            </div>
+
             {/* Full Name & Student ID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -225,7 +280,6 @@ const RegisterPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         formData={formData}
-        initialWhatsAppUrl={whatsAppUrl}
       />
     </MainLayout>
   );

@@ -30,6 +30,10 @@ const pendingSignupSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    profileImage: {
+      type: String,
+      default: '',
+    },
     // Email OTP Fields
     emailOtp: {
       type: String,

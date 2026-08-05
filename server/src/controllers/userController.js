@@ -1,16 +1,22 @@
 const User = require('../models/User');
+const Ride = require('../models/Ride');
+const RideRequest = require('../models/RideRequest');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 // @route   GET /api/users/me
 const getUserProfile = async (req, res, next) => {
   try {
-    let user;
-    try {
-      user = await User.findById(req.user._id);
-    } catch (err) {
-      user = req.user;
-    }
-    return successResponse(res, 200, 'User profile retrieved', user);
+    let user = await User.findById(req.user._id);
+    if (!user) user = req.user;
+
+    const ridesOfferedCount = await Ride.countDocuments({ hostId: user._id });
+    const ridesTakenCount = await RideRequest.countDocuments({ passengerId: user._id, status: 'accepted' });
+
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    userObj.ridesOfferedCount = ridesOfferedCount;
+    userObj.ridesTakenCount = ridesTakenCount;
+
+    return successResponse(res, 200, 'User profile retrieved', userObj);
   } catch (error) {
     next(error);
   }
@@ -20,20 +26,15 @@ const getUserProfile = async (req, res, next) => {
 const updateUserProfile = async (req, res, next) => {
   try {
     const { fullName, bio, department, batchYear, profileImage } = req.body;
-    let user;
+    let user = await User.findById(req.user._id);
 
-    try {
-      user = await User.findById(req.user._id);
-      if (user) {
-        if (fullName) user.fullName = fullName;
-        if (bio !== undefined) user.bio = bio;
-        if (department) user.department = department;
-        if (batchYear) user.batchYear = batchYear;
-        if (profileImage) user.profileImage = profileImage;
-        await user.save();
-      }
-    } catch (err) {
-      console.warn('[User Update] DB bypass');
+    if (user) {
+      if (fullName) user.fullName = fullName;
+      if (bio !== undefined) user.bio = bio;
+      if (department) user.department = department;
+      if (batchYear) user.batchYear = batchYear;
+      if (profileImage) user.profileImage = profileImage;
+      await user.save();
     }
 
     return successResponse(res, 200, 'Profile updated successfully', user || req.user);
@@ -50,15 +51,11 @@ const addEmergencyContact = async (req, res, next) => {
       return errorResponse(res, 400, 'Name and phone are required');
     }
 
-    try {
-      const user = await User.findById(req.user._id);
-      if (user) {
-        user.emergencyContacts.push({ name, phone, relation: relation || 'Family' });
-        await user.save();
-        return successResponse(res, 200, 'Emergency contact added', user.emergencyContacts);
-      }
-    } catch (err) {
-      console.warn('[Emergency Contact DB] Fallback');
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.emergencyContacts.push({ name, phone, relation: relation || 'Family' });
+      await user.save();
+      return successResponse(res, 200, 'Emergency contact added', user.emergencyContacts);
     }
 
     return successResponse(res, 200, 'Emergency contact added', [{ name, phone, relation: relation || 'Family' }]);
@@ -75,15 +72,11 @@ const saveRoute = async (req, res, next) => {
       return errorResponse(res, 400, 'Title, source, and destination are required');
     }
 
-    try {
-      const user = await User.findById(req.user._id);
-      if (user) {
-        user.savedRoutes.push({ title, source, destination });
-        await user.save();
-        return successResponse(res, 200, 'Route saved successfully', user.savedRoutes);
-      }
-    } catch (err) {
-      console.warn('[Saved Routes DB] Fallback');
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.savedRoutes.push({ title, source, destination });
+      await user.save();
+      return successResponse(res, 200, 'Route saved successfully', user.savedRoutes);
     }
 
     return successResponse(res, 200, 'Route saved successfully', [{ title, source, destination }]);
@@ -95,31 +88,20 @@ const saveRoute = async (req, res, next) => {
 // @route   GET /api/users/:id
 const getUserPublicProfile = async (req, res, next) => {
   try {
-    let user;
-    try {
-      user = await User.findById(req.params.id).select('fullName university department batchYear verificationStatus rating ratingCount ridesOfferedCount ridesTakenCount profileImage bio createdAt');
-    } catch (err) {
-      console.warn('[Public User Profile] DB fallback');
+    const user = await User.findById(req.params.id).select('fullName university department batchYear verificationStatus rating ratingCount profileImage bio createdAt');
+
+    if (user) {
+      const ridesOfferedCount = await Ride.countDocuments({ hostId: user._id });
+      const ridesTakenCount = await RideRequest.countDocuments({ passengerId: user._id, status: 'accepted' });
+
+      const userObj = user.toObject();
+      userObj.ridesOfferedCount = ridesOfferedCount;
+      userObj.ridesTakenCount = ridesTakenCount;
+
+      return successResponse(res, 200, 'Public profile fetched', userObj);
     }
 
-    if (!user) {
-      user = {
-        _id: req.params.id,
-        fullName: 'Campus Student',
-        university: 'State University',
-        department: 'Computer Science',
-        batchYear: '2026',
-        verificationStatus: 'verified',
-        rating: 4.9,
-        ratingCount: 18,
-        ridesOfferedCount: 12,
-        ridesTakenCount: 15,
-        profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
-        bio: 'Daily commuter between Mohali & Campus!',
-      };
-    }
-
-    return successResponse(res, 200, 'Public profile fetched', user);
+    return errorResponse(res, 404, 'Student profile not found');
   } catch (error) {
     next(error);
   }
