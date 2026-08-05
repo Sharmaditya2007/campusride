@@ -170,7 +170,7 @@ const RideDetailPage = () => {
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
                   <span className="text-slate-400 block text-[10px]">Plate No</span>
-                  <span className="font-mono font-bold text-emerald-400 mt-0.5 block">{vehicle?.registrationNumber || 'CH-01-AB-4890'}</span>
+                  <span className="font-mono font-bold text-emerald-400 mt-0.5 block">{vehicle?.registrationNumber || 'Assigned Vehicle'}</span>
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
                   <span className="text-slate-400 block text-[10px]">Available Seats</span>
@@ -233,7 +233,7 @@ const RideDetailPage = () => {
                 />
                 <div>
                   <h3 className="font-extrabold text-white text-base flex items-center justify-center gap-1.5">
-                    {driver.fullName || 'Aman Sharma'}
+                    {driver.fullName || 'Verified Driver'}
                     {driver.verificationStatus === 'verified' && (
                       <ShieldCheck className="w-4 h-4 text-emerald-400 inline" />
                     )}

@@ -48,6 +48,8 @@ const LandingPage = () => {
   // Interactive Commute Savings Calculator State
   const [dailyKm, setDailyKm] = useState(18);
 
+  const [featuredRides, setFeaturedRides] = useState([]);
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -57,7 +59,16 @@ const LandingPage = () => {
         }
       } catch (err) {}
     };
+    const fetchRides = async () => {
+      try {
+        const res = await api.get('/rides/going-now');
+        if (res.success && Array.isArray(res.data)) {
+          setFeaturedRides(res.data);
+        }
+      } catch (err) {}
+    };
     fetchStats();
+    fetchRides();
   }, []);
 
   const handleHeroSearch = (e) => {
@@ -303,71 +314,57 @@ const LandingPage = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                {
-                  from: 'Sector 17 Bus Stand',
-                  to: 'Main Campus Gate 1',
-                  driver: 'Aman Sharma',
-                  role: 'B.Tech CS 4th Year',
-                  rating: '4.9 ★',
-                  car: 'Honda City (CH-01-AB)',
-                  time: '08:15 AM',
-                  seats: '2 Seats Left',
-                  price: '₹50',
-                },
-                {
-                  from: 'Mohali Phase 7',
-                  to: 'Engineering Block B',
-                  driver: 'Priya Verma',
-                  role: 'MBA 2nd Year',
-                  rating: '4.8 ★',
-                  car: 'Hyundai i20 (PB-65-XY)',
-                  time: '08:45 AM',
-                  seats: '3 Seats Left',
-                  price: '₹60',
-                },
-                {
-                  from: 'Zirakpur VIP Road',
-                  to: 'Science Block Gate 3',
-                  driver: 'Rohan Mehta',
-                  role: 'M.Tech Biotech',
-                  rating: '5.0 ★',
-                  car: 'Maruti Baleno (HR-03-CD)',
-                  time: '09:00 AM',
-                  seats: '1 Seat Left',
-                  price: '₹70',
-                },
-              ].map((r, idx) => (
-                <div key={idx} className="glass-card glass-card-hover p-6 rounded-3xl border-slate-800 space-y-4">
-                  <div className="flex justify-between items-start pb-3 border-b border-slate-800">
-                    <div>
-                      <h4 className="font-extrabold text-white text-sm">{r.from} ➔ {r.to}</h4>
-                      <span className="text-xs text-emerald-400 font-semibold">{r.time} Departure</span>
+            {featuredRides.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {featuredRides.slice(0, 3).map((r, idx) => (
+                  <div key={idx} className="glass-card glass-card-hover p-6 rounded-3xl border-slate-800 space-y-4">
+                    <div className="flex justify-between items-start pb-3 border-b border-slate-800">
+                      <div>
+                        <h4 className="font-extrabold text-white text-sm">{r.source} ➔ {r.destination}</h4>
+                        <span className="text-xs text-emerald-400 font-semibold">{r.departureTime} Departure</span>
+                      </div>
+                      <span className="text-lg font-black text-white">₹{r.contribution}</span>
                     </div>
-                    <span className="text-lg font-black text-white">{r.price}</span>
-                  </div>
 
-                  <div className="space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-slate-300">
-                      <span className="font-bold text-slate-200">{r.driver}</span>
-                      <span className="text-amber-400 font-bold">{r.rating}</span>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="font-bold text-slate-200">{r.driverId?.fullName || 'Verified Driver'}</span>
+                        <span className="text-amber-400 font-bold">{r.driverId?.rating || 5.0} ★</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">{r.driverId?.university || 'Campus Driver'}</p>
                     </div>
-                    <p className="text-[11px] text-slate-400">{r.role} • {r.car}</p>
-                  </div>
 
-                  <div className="flex justify-between items-center pt-2">
-                    <span className="text-xs font-bold text-teal-400">{r.seats}</span>
-                    <Link
-                      to="/find-ride"
-                      className="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold text-xs border border-emerald-500/30 transition"
-                    >
-                      Book Seat
-                    </Link>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="text-xs font-bold text-teal-400">{r.availableSeats} Seats Left</span>
+                      <Link
+                        to={`/ride/${r._id}`}
+                        className="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold text-xs border border-emerald-500/30 transition"
+                      >
+                        Book Seat
+                      </Link>
+                    </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-panel p-8 sm:p-10 rounded-3xl border-slate-800 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+                  <Car className="w-6 h-6" />
                 </div>
-              ))}
-            </div>
+                <h4 className="text-lg font-bold text-white">No Active Rides Right Now</h4>
+                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  Be the first verified campus driver to post a carpool route or commute schedule for your university!
+                </p>
+                <div className="pt-2">
+                  <Link
+                    to="/offer-ride"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20"
+                  >
+                    + Offer a Campus Ride
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

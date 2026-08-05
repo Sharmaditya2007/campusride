@@ -9,34 +9,19 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'verifications' | 'users' | 'reports'
 
   const [stats, setStats] = useState({
-    totalUsers: 154,
-    verifiedUsers: 138,
-    pendingVerifications: 8,
-    totalRides: 342,
-    activeRides: 14,
-    completedRides: 310,
-    cancelledRides: 18,
-    totalReports: 3,
+    totalUsers: 0,
+    verifiedUsers: 0,
+    pendingVerifications: 0,
+    totalRides: 0,
+    activeRides: 0,
+    completedRides: 0,
+    cancelledRides: 0,
+    totalReports: 0,
   });
 
   const [verifications, setVerifications] = useState({
-    studentVerifications: [
-      {
-        _id: 'sver_101',
-        userId: { fullName: 'Neha Kapoor', email: 'neha@chitkara.edu', university: 'Chitkara University', studentId: 'CHK-4410' },
-        documentUrl: 'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?auto=format&fit=crop&q=80&w=400',
-        status: 'pending',
-      },
-    ],
-    driverVerifications: [
-      {
-        _id: 'dver_201',
-        userId: { fullName: 'Rohan Gupta', email: 'rohan@student.edu', university: 'State University', studentId: 'STU-1102' },
-        licenceNumber: 'DL-04201198822',
-        licenceDocumentUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=400',
-        verificationStatus: 'pending',
-      },
-    ],
+    studentVerifications: [],
+    driverVerifications: [],
   });
 
   const [usersList, setUsersList] = useState([]);

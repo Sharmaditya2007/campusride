@@ -4,16 +4,10 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 const hubs = [
-  { id: 'h1', name: 'Sector 17 Bus Stand', type: 'Major Hub', x: '15%', y: '30%', activeRides: 4 },
-  { id: 'h2', name: 'Mohali Phase 7 Hub', type: 'Suburban Hub', x: '45%', y: '60%', activeRides: 6 },
-  { id: 'h3', name: 'Zirakpur VIP Crossing', type: 'Highway Hub', x: '75%', y: '35%', activeRides: 3 },
-  { id: 'h4', name: 'Campus Main Gate 1', type: 'Campus Hub', x: '50%', y: '20%', activeRides: 8 },
-];
-
-const activeCars = [
-  { driver: 'Aman S.', route: 'Sector 17 ➔ Main Gate', car: 'Honda City', seats: 2, price: '₹50', time: '08:15 AM' },
-  { driver: 'Priya V.', route: 'Mohali ➔ Engineering Block', car: 'Hyundai i20', seats: 3, price: '₹60', time: '08:45 AM' },
-  { driver: 'Rohan M.', route: 'Zirakpur ➔ Science Block', car: 'Maruti Baleno', seats: 1, price: '₹70', time: '09:00 AM' },
+  { id: 'h1', name: 'Sector 17 Bus Stand', type: 'Major Hub', x: '15%', y: '30%', activeRides: 0 },
+  { id: 'h2', name: 'Mohali Phase 7 Hub', type: 'Suburban Hub', x: '45%', y: '60%', activeRides: 0 },
+  { id: 'h3', name: 'Zirakpur VIP Crossing', type: 'Highway Hub', x: '75%', y: '35%', activeRides: 0 },
+  { id: 'h4', name: 'Campus Main Gate 1', type: 'Campus Hub', x: '50%', y: '20%', activeRides: 0 },
 ];
 
 const CampusRouteVisualizer = () => {

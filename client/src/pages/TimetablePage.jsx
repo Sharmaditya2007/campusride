@@ -15,10 +15,7 @@ const TimetablePage = () => {
     { day: 'Friday', firstClassStart: '09:00', lastClassEnd: '14:30' },
   ]);
 
-  const [matches, setMatches] = useState([
-    { student: 'Aman (Senior CS)', route: 'Mohali Sector 70 ➔ Campus Gate 1', departure: '08:15 AM (Matches 09:00 Class)' },
-    { student: 'Priya (ECE)', route: 'Sector 17 ➔ Engineering Block', departure: '08:30 AM (Matches 09:00 Class)' },
-  ]);
+  const [matches, setMatches] = useState([]);
 
   const handleSaveTimetable = async () => {
     try {
