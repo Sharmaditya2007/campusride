@@ -38,6 +38,31 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Utility endpoint to clear test seed data from database
+app.get('/api/clear-db', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const Vehicle = require('./models/Vehicle');
+    const Ride = require('./models/Ride');
+    const RideRequest = require('./models/RideRequest');
+    const StudentVerification = require('./models/StudentVerification');
+    const DriverProfile = require('./models/DriverProfile');
+    const CommuteGroup = require('./models/CommuteGroup');
+
+    await User.deleteMany({});
+    await Vehicle.deleteMany({});
+    await Ride.deleteMany({});
+    await RideRequest.deleteMany({});
+    await StudentVerification.deleteMany({});
+    await DriverProfile.deleteMany({});
+    await CommuteGroup.deleteMany({});
+
+    return res.status(200).json({ success: true, message: 'All database collections cleared successfully!' });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
