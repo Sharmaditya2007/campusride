@@ -59,11 +59,11 @@ const SOSModal = ({ isOpen, onClose, ride }) => {
             <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-400">
                 <span>Driver:</span>
-                <span className="font-semibold text-slate-200">{ride?.driverId?.fullName || 'Aman Sharma'}</span>
+                <span className="font-semibold text-slate-200">{ride?.driverId?.fullName || 'Verified Driver'}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Vehicle Plate:</span>
-                <span className="font-mono text-emerald-400 font-bold">{ride?.vehicleId?.registrationNumber || 'CH-01-AB-4890'}</span>
+                <span className="font-mono text-emerald-400 font-bold">{ride?.vehicleId?.registrationNumber || 'Assigned Vehicle'}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Last Telemetry Location:</span>

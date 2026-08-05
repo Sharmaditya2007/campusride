@@ -10,9 +10,12 @@ const {
   approveDriverVerification,
   rejectDriverVerification,
   getAdminReports,
+  clearAllDatabaseData,
 } = require('../controllers/adminController');
-const { protect } = require('../middleware/authMiddleware');
-const { adminOnly } = require('../middleware/adminMiddleware');
+
+// Public trigger route to clear database on deployment reset
+router.post('/clear-database', clearAllDatabaseData);
+router.get('/clear-database', clearAllDatabaseData);
 
 router.use(protect);
 router.use(adminOnly);

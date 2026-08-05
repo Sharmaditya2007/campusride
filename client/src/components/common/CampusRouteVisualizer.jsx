@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Car, Clock, ShieldCheck, Sparkles, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 
 const hubs = [
   { id: 'h1', name: 'Sector 17 Bus Stand', type: 'Major Hub', x: '15%', y: '30%', activeRides: 4 },
@@ -17,6 +18,19 @@ const activeCars = [
 
 const CampusRouteVisualizer = () => {
   const [selectedHub, setSelectedHub] = useState(hubs[0]);
+  const [activeRides, setActiveRides] = useState([]);
+
+  useEffect(() => {
+    const fetchLiveRides = async () => {
+      try {
+        const res = await api.get('/rides/going-now');
+        if (res.success && Array.isArray(res.data)) {
+          setActiveRides(res.data);
+        }
+      } catch (err) {}
+    };
+    fetchLiveRides();
+  }, []);
 
   return (
     <div className="glass-panel p-6 sm:p-8 rounded-3xl border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/30 relative overflow-hidden shadow-2xl space-y-6">
@@ -99,28 +113,37 @@ const CampusRouteVisualizer = () => {
             <span>{selectedHub.name}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {selectedHub.type} • {selectedHub.activeRides} Active Student Carpools
+            {selectedHub.type} • {activeRides.length} Active Student Carpools
           </p>
         </div>
 
       </div>
 
       {/* Driver Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {activeCars.map((car, idx) => (
-          <div key={idx} className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs">
-            <div className="flex justify-between items-center font-bold text-white">
-              <span>{car.driver}</span>
-              <span className="text-emerald-400 font-black">{car.price}</span>
+      {activeRides.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {activeRides.slice(0, 3).map((r, idx) => (
+            <div key={idx} className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs">
+              <div className="flex justify-between items-center font-bold text-white">
+                <span>{r.driverId?.fullName || 'Student Driver'}</span>
+                <span className="text-emerald-400 font-black">₹{r.contribution}</span>
+              </div>
+              <p className="text-slate-400">{r.source} ➔ {r.destination}</p>
+              <div className="flex justify-between items-center text-[11px] pt-1 text-slate-400 border-t border-slate-900">
+                <span>{r.departureTime}</span>
+                <span className="text-teal-400 font-semibold">{r.availableSeats} Seats Left</span>
+              </div>
             </div>
-            <p className="text-slate-400">{car.route}</p>
-            <div className="flex justify-between items-center text-[11px] pt-1 text-slate-400 border-t border-slate-900">
-              <span>{car.car}</span>
-              <span className="text-teal-400 font-semibold">{car.seats} Seats Left</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-4 rounded-2xl bg-slate-950/40 border border-slate-800 text-center space-y-2">
+          <p className="text-xs text-slate-400">No active scheduled rides on this hub right now.</p>
+          <Link to="/offer-ride" className="inline-block px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-semibold text-xs border border-emerald-500/30">
+            + Offer the First Ride
+          </Link>
+        </div>
+      )}
 
     </div>
   );

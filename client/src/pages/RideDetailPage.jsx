@@ -22,9 +22,7 @@ const RideDetailPage = () => {
   const [requestedSeats, setRequestedSeats] = useState(1);
 
   // Chat message state
-  const [messages, setMessages] = useState([
-    { senderName: 'Aman (Driver)', content: 'Hey everyone! Leaving at 08:15 AM sharp from Phase 7 hub.', createdAt: '08:00 AM' },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
 
   useEffect(() => {

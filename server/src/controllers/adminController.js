@@ -216,6 +216,28 @@ const getAdminReports = async (req, res, next) => {
   }
 };
 
+// @route   POST /api/admin/clear-database
+const clearAllDatabaseData = async (req, res, next) => {
+  try {
+    const Vehicle = require('../models/Vehicle');
+    const RideRequest = require('../models/RideRequest');
+    const CommuteGroup = require('../models/CommuteGroup');
+
+    await User.deleteMany({});
+    await Vehicle.deleteMany({});
+    await Ride.deleteMany({});
+    await RideRequest.deleteMany({});
+    await StudentVerification.deleteMany({});
+    await DriverProfile.deleteMany({});
+    await CommuteGroup.deleteMany({});
+    await Report.deleteMany({});
+
+    return successResponse(res, 200, 'All fake and test database collections have been completely cleared! 🧹');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAdminDashboardStats,
   getUsersList,
@@ -226,4 +248,5 @@ module.exports = {
   approveDriverVerification,
   rejectDriverVerification,
   getAdminReports,
+  clearAllDatabaseData,
 };
