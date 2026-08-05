@@ -15,6 +15,8 @@ const VerifyAccountPage = () => {
   const phone = state.phone || '';
   
   const [whatsAppUrl, setWhatsAppUrl] = useState(state.whatsAppUrl || '');
+  const [emailOtpDemo, setEmailOtpDemo] = useState(state.emailOtpDemo || '');
+  const [whatsappOtpDemo, setWhatsappOtpDemo] = useState(state.whatsappOtpDemo || '');
 
   // Verification States
   const [emailOtp, setEmailOtp] = useState('');
@@ -34,6 +36,11 @@ const VerifyAccountPage = () => {
 
   const [whatsappCooldown, setWhatsappCooldown] = useState(0);
   const [whatsappAttemptsLeft, setWhatsappAttemptsLeft] = useState(3);
+
+  // Fallback WhatsApp Intent URL Generator
+  const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+  const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+  const activeWhatsAppUrl = whatsAppUrl || (formattedPhone ? `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent('🔑 *CampusRide Security OTP*: Verification for ' + (email || 'Student'))}` : '');
 
   // 60-Second Cooldown Timer effect
   useEffect(() => {
@@ -111,12 +118,13 @@ const VerifyAccountPage = () => {
       const res = await api.post('/auth/resend-email-otp', { email });
       if (res.success) {
         setEmailCooldown(60);
+        if (res.data?.emailOtp) setEmailOtpDemo(res.data.emailOtp);
         if (res.data?.resendsLeft !== undefined) {
           setEmailAttemptsLeft(res.data.resendsLeft);
         } else {
           setEmailAttemptsLeft((prev) => prev - 1);
         }
-        showToast('New 6-digit Email OTP code sent to your inbox!', 'info');
+        showToast('New 6-digit Email OTP code sent!', 'info');
       }
     } catch (err) {
       showToast(err.message || 'Failed to resend Email OTP.', 'error');
@@ -131,6 +139,7 @@ const VerifyAccountPage = () => {
       if (res.success) {
         setWhatsappCooldown(60);
         if (res.data?.whatsAppUrl) setWhatsAppUrl(res.data.whatsAppUrl);
+        if (res.data?.whatsappOtp) setWhatsappOtpDemo(res.data.whatsappOtp);
         if (res.data?.resendsLeft !== undefined) {
           setWhatsappAttemptsLeft(res.data.resendsLeft);
         } else {
@@ -217,6 +226,12 @@ const VerifyAccountPage = () => {
             )}
           </div>
 
+          {emailOtpDemo && !emailVerified && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
+              Generated Email OTP: <span className="font-extrabold text-sm">{emailOtpDemo}</span>
+            </div>
+          )}
+
           {!emailVerified ? (
             <form onSubmit={handleVerifyEmail} className="space-y-3">
               <div className="flex gap-2">
@@ -269,6 +284,12 @@ const VerifyAccountPage = () => {
             )}
           </div>
 
+          {whatsappOtpDemo && !whatsappVerified && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
+              Generated WhatsApp OTP: <span className="font-extrabold text-sm">{whatsappOtpDemo}</span>
+            </div>
+          )}
+
           {!whatsappVerified ? (
             <form onSubmit={handleVerifyWhatsapp} className="space-y-3">
               <div className="flex gap-2">
@@ -291,9 +312,9 @@ const VerifyAccountPage = () => {
               </div>
 
               {/* Direct WhatsApp Link Button */}
-              {whatsAppUrl && (
+              {activeWhatsAppUrl && (
                 <a
-                  href={whatsAppUrl}
+                  href={activeWhatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-2 transition text-center shadow-md"
