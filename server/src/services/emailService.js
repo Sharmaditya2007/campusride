@@ -102,8 +102,12 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp }) => {
       });
     }
 
+    const mailSender = process.env.SMTP_USER
+      ? `"CollegeRide Security" <${process.env.SMTP_USER}>`
+      : fromEmail;
+
     const mailOptions = {
-      from: fromEmail,
+      from: mailSender,
       to: toEmail,
       subject: `🔑 ${emailOtp} is your CollegeRide Email Verification Code`,
       html: htmlContent,
