@@ -779,10 +779,6 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
       return errorResponse(res, 400, 'University Email Address is required');
     }
 
-    if (!profileImage || !profileImage.trim()) {
-      return errorResponse(res, 400, 'Student Profile Picture is required. Please upload your profile photo.');
-    }
-
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = (phone || '').trim();
 
