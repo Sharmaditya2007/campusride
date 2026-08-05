@@ -153,7 +153,6 @@ const LoginPage = () => {
                         type="text"
                         value={identifier}
                         onChange={(e) => setIdentifier(e.target.value)}
-                        placeholder="e.g. aditya@student.edu or +91 98765 43210"
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-emerald-500"
                         required
                       />
@@ -200,7 +199,6 @@ const LoginPage = () => {
                         maxLength={6}
                         value={emailOtp}
                         onChange={(e) => setEmailOtp(e.target.value)}
-                        placeholder="e.g. 123456"
                         className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-emerald-500/50 rounded-xl text-center text-lg font-mono tracking-widest text-emerald-300 focus:outline-none focus:border-emerald-400"
                         required
                       />
@@ -257,7 +255,6 @@ const LoginPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. student@college.edu.in"
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />
@@ -275,7 +272,6 @@ const LoginPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />

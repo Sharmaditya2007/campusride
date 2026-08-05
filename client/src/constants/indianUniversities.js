@@ -1,4 +1,4 @@
-export const INDIAN_UNIVERSITIES = [
+const RAW_UNIVERSITIES = [
   // Top Central & Technological Institutes (IITs, NITs, IIITs, IISc, AIIMS, IIMs)
   'Indian Institute of Technology (IIT) Bombay',
   'Indian Institute of Technology (IIT) Delhi',
@@ -139,3 +139,5 @@ export const INDIAN_UNIVERSITIES = [
   'Gauhati University, Guwahati',
   'North-Eastern Hill University (NEHU), Shillong'
 ];
+
+export const INDIAN_UNIVERSITIES = Array.from(new Set(RAW_UNIVERSITIES)).sort((a, b) => a.localeCompare(b));
