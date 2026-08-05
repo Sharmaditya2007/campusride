@@ -117,43 +117,30 @@ const RegisterPage = () => {
             </div>
 
             {/* University Selection with Filter */}
+            {/* University Selection with Searchable Datalist */}
             <div className="space-y-1.5">
               <label className="block font-semibold text-slate-300 flex justify-between items-center">
-                <span>Select Indian University / College ({INDIAN_UNIVERSITIES.length}+ Listed)</span>
-                <span className="text-[10px] text-emerald-400 font-normal">All India Covered</span>
+                <span>University / College Name ({INDIAN_UNIVERSITIES.length}+ Listed)</span>
+                <span className="text-[10px] text-emerald-400 font-normal">Type or Select Any College</span>
               </label>
               
               <div className="relative">
                 <GraduationCap className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                <select
+                <input
+                  type="text"
+                  list="university-options"
                   value={formData.university}
                   onChange={(e) => setFormData({ ...formData, university: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 max-h-40"
-                >
+                  placeholder="Type or select your university (e.g. Chitkara, CU, DU, VIT, LPU, IIT...)"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 text-xs font-semibold"
+                  required
+                />
+                <datalist id="university-options">
                   {INDIAN_UNIVERSITIES.map((univ, idx) => (
-                    <option key={idx} value={univ}>
-                      {univ}
-                    </option>
+                    <option key={idx} value={univ} />
                   ))}
-                </select>
+                </datalist>
               </div>
-
-              {/* Custom University Manual Entry if 'Other' selected */}
-              {formData.university.includes('Other University') && (
-                <div className="pt-2 animate-fade-in">
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                    Enter Your University / College Full Name:
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.customUniversity}
-                    onChange={(e) => setFormData({ ...formData, customUniversity: e.target.value })}
-                    placeholder="e.g. National Institute of Technology, Agartala"
-                    className="w-full px-3 py-2 bg-slate-950 border border-emerald-500/50 rounded-xl text-slate-100 focus:outline-none text-xs"
-                    required
-                  />
-                </div>
-              )}
             </div>
 
             {/* Mobile Phone & Email */}

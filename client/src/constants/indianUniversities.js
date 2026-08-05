@@ -1,5 +1,5 @@
 export const INDIAN_UNIVERSITIES = [
-  // Top Engineering & Technology Institutes (IITs, NITs, IIITs)
+  // Top Central & Technological Institutes (IITs, NITs, IIITs, IISc, AIIMS, IIMs)
   'Indian Institute of Technology (IIT) Bombay',
   'Indian Institute of Technology (IIT) Delhi',
   'Indian Institute of Technology (IIT) Madras',
@@ -22,7 +22,7 @@ export const INDIAN_UNIVERSITIES = [
   'Indian Institute of Technology (IIT) Jammu',
   'Indian Institute of Technology (IIT) Dharwad',
   'Indian Institute of Technology (IIT) Bhilai',
-  
+
   // NITs & IIITs
   'National Institute of Technology (NIT) Trichy',
   'National Institute of Technology (NIT) Surathkal',
@@ -35,6 +35,9 @@ export const INDIAN_UNIVERSITIES = [
   'National Institute of Technology (NIT) Silchar',
   'Malaviya National Institute of Technology (MNIT) Jaipur',
   'Motilal Nehru National Institute of Technology (MNNIT) Allahabad',
+  'Maulana Azad National Institute of Technology (MANIT) Bhopal',
+  'Visvesvaraya National Institute of Technology (VNIT) Nagpur',
+  'Sardar Vallabhbhai National Institute of Technology (SVNIT) Surat',
   'International Institute of Information Technology (IIIT) Hyderabad',
   'International Institute of Information Technology (IIIT) Bangalore',
   'Indraprastha Institute of Information Technology (IIIT) Delhi',
@@ -42,7 +45,7 @@ export const INDIAN_UNIVERSITIES = [
   'Indian Institute of Information Technology (IIIT) Lucknow',
   'ABV-IIITM Gwalior',
 
-  // Region 1: Punjab, Chandigarh & Haryana
+  // Region 1: Punjab, Chandigarh, Himachal & Jammu
   'Chitkara University, Punjab / Himachal',
   'Chandigarh University, Mohali',
   'PEC Punjab Engineering College, Chandigarh',
@@ -53,14 +56,21 @@ export const INDIAN_UNIVERSITIES = [
   'Guru Nanak Dev University (GNDU), Amritsar',
   'Punjabi University, Patiala',
   'I K Gujral Punjab Technical University (PTU), Jalandhar',
+  'Chandigarh Group of Colleges (CGC), Landran / Jhanjeri',
+  'Himachal Pradesh University (HPU), Shimla',
+  'Himachal Pradesh Technical University (HPTU), Hamirpur',
+  'Jaypee University of Information Technology (JUIT), Waknaghat',
+  'Shoolini University, Solan',
+  'University of Jammu, Jammu',
+  'University of Kashmir, Srinagar',
+
+  // Region 2: Haryana, Delhi NCR & Uttar Pradesh
   'Ashoka University, Sonepat',
   'O.P. Jindal Global University, Sonepat',
   'Kurukshetra University, Kurukshetra',
   'Maharshi Dayanand University (MDU), Rohtak',
-  'YMCA University of Science and Technology, Faridabad',
+  'JC Bose University of Science & Technology (YMCA), Faridabad',
   'Gurugram University, Gurugram',
-
-  // Region 2: Delhi NCR & Uttar Pradesh
   'University of Delhi (DU), New Delhi',
   'Jawaharlal Nehru University (JNU), New Delhi',
   'Jamia Millia Islamia (JMI), New Delhi',
@@ -70,24 +80,29 @@ export const INDIAN_UNIVERSITIES = [
   'Banaras Hindu University (BHU), Varanasi',
   'Aligarh Muslim University (AMU), Aligarh',
   'Dr. A.P.J. Abdul Kalam Technical University (AKTU), Lucknow',
-  'Amity University, Noida / Lucknow',
+  'Amity University, Noida / Gurgaon / Lucknow',
   'Shiv Nadar University, Greater Noida',
   'Bennett University, Greater Noida',
   'Jaypee Institute of Information Technology (JIIT), Noida',
   'Harcourt Butler Technical University (HBTU), Kanpur',
   'Madan Mohan Malaviya University of Technology (MMMUT), Gorakhpur',
+  'GL Bajaj Institute of Technology & Management, Greater Noida',
+  'KIET Group of Institutions, Ghaziabad',
 
-  // Region 3: Rajasthan & Himachal Pradesh
+  // Region 3: Rajasthan, MP & Gujarat
   'BITS Pilani, Rajasthan',
-  'Malaviya National Institute of Technology (MNIT), Jaipur',
   'Rajasthan Technical University (RTU), Kota',
   'LNM Institute of Information Technology (LNMIIT), Jaipur',
-  'Jain Vishva Bharati Institute, Rajasthan',
-  'Himachal Pradesh University (HPU), Shimla',
-  'Himachal Pradesh Technical University (HPTU), Hamirpur',
-  'Jaypee University of Information Technology (JUIT), Waknaghat',
+  'Manipal University, Jaipur',
+  'Jaipur National University, Jaipur',
+  'Savitribai Phule University / DAVV, Indore',
+  'Maulana Azad National Institute of Technology, Bhopal',
+  'Gujarat Technological University (GTU), Ahmedabad',
+  'Dhirubhai Ambani Institute (DA-IICT), Gandhinagar',
+  'Nirma University, Ahmedabad',
+  'Pandit Deendayal Energy University (PDEU), Gandhinagar',
 
-  // Region 4: Maharashtra, Gujarat & Goa
+  // Region 4: Maharashtra, Goa & South India
   'University of Mumbai, Mumbai',
   'Savitribai Phule Pune University (SPPU), Pune',
   'Veermata Jijabai Technological Institute (VJTI), Mumbai',
@@ -95,12 +110,6 @@ export const INDIAN_UNIVERSITIES = [
   'NMIMS University, Mumbai',
   'Symbiosis International University, Pune',
   'BITS Pilani, Goa Campus',
-  'Gujarat Technological University (GTU), Ahmedabad',
-  'Dhirubhai Ambani Institute of Information and Communication Technology (DA-IICT), Gandhinagar',
-  'Nirma University, Ahmedabad',
-  'Pandit Deendayal Energy University (PDEU), Gandhinagar',
-
-  // Region 5: South India (Karnataka, Tamil Nadu, Telangana, Andhra Pradesh, Kerala)
   'Indian Institute of Science (IISc), Bangalore',
   'Visvesvaraya Technological University (VTU), Belagavi',
   'Manipal Academy of Higher Education (MAHE), Manipal',
@@ -110,29 +119,23 @@ export const INDIAN_UNIVERSITIES = [
   'BMS College of Engineering, Bangalore',
   'RV College of Engineering (RVCE), Bangalore',
   'Anna University, Chennai',
-  'Vellore Institute of Technology (VIT), Vellore',
-  'Vellore Institute of Technology (VIT), Chennai',
+  'Vellore Institute of Technology (VIT), Vellore / Chennai / AP / Bhopal',
   'SRM Institute of Science and Technology, Chennai',
   'SSN College of Engineering, Chennai',
   'BITS Pilani, Hyderabad Campus',
   'JNTU Hyderabad, Telangana',
   'Osmania University, Hyderabad',
-  'Koneru Lakshmaiah Education Foundation (KL University), Guntur',
-  'Vignan’s Foundation for Science, Technology & Research, Guntur',
-  'APJ Abdul Kalam Technological University (KTU), Thiruvananthapuram',
-  'Cochin University of Science and Technology (CUSAT), Kochi',
+  'KL University, Guntur',
+  'APJ Abdul Kalam Technological University (KTU), Kerala',
 
-  // Region 6: East & North-East India
+  // Region 5: East & North-East India
   'Jadavpur University, Kolkata',
-  'Maulana Abul Kalam Azad University of Technology (MAKAUT), West Bengal',
+  'MAKAUT, West Bengal',
   'Calcutta University, Kolkata',
-  'Indian Institute of Engineering Science and Technology (IIEST), Shibpur',
+  'IIEST Shibpur, West Bengal',
   'Siksha \'O\' Anusandhan (SOA), Bhubaneswar',
   'KIIT University, Bhubaneswar',
-  'National Institute of Technology (NIT) Meghalaya / Nagaland / Silchar',
   'Tezpur University, Assam',
   'Gauhati University, Guwahati',
-  
-  // Custom / Other
-  'Other University / College (Enter Name Manually)'
+  'North-Eastern Hill University (NEHU), Shillong'
 ];

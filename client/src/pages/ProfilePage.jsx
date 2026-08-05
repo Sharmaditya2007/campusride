@@ -10,13 +10,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   const { showToast } = useNotifications();
 
-  const [emergencyContacts, setEmergencyContacts] = useState(user?.emergencyContacts || [
-    { name: 'Rakesh Sharma (Father)', phone: '+91 98765 43210', relation: 'Family' }
-  ]);
-
-  const [savedRoutes, setSavedRoutes] = useState(user?.savedRoutes || [
-    { title: 'Home ↔ Campus', source: 'Mohali Sector 70', destination: 'State University Gate 1' }
-  ]);
+  const [emergencyContacts, setEmergencyContacts] = useState(user?.emergencyContacts || []);
+  const [savedRoutes, setSavedRoutes] = useState(user?.savedRoutes || []);
 
   const [newContact, setNewContact] = useState({ name: '', phone: '', relation: 'Family' });
   const [showAddContact, setShowAddContact] = useState(false);
