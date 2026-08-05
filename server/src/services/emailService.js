@@ -50,7 +50,36 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp }) => {
       </div>
     `;
 
-    // 1. Preferred: Try Resend REST API if RESEND_API_KEY is available
+    // 1. Primary Method: Gmail / Standard SMTP (Guarantees delivery to ANY email address)
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: Number(process.env.SMTP_PORT) === 465,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+
+        const mailSender = `"CollegeRide Security" <${process.env.SMTP_USER}>`;
+
+        await transporter.sendMail({
+          from: mailSender,
+          to: toEmail,
+          subject: `🔑 ${emailOtp} is your CollegeRide Email Verification Code`,
+          html: htmlContent,
+        });
+
+        console.log(`[Email Service Success] OTP delivered to ${toEmail} via SMTP (${process.env.SMTP_USER})`);
+        return { success: true, provider: 'smtp' };
+      } catch (smtpErr) {
+        console.warn('[SMTP Email Warning] Falling back to Resend API:', smtpErr.message);
+      }
+    }
+
+    // 2. Secondary Method: Resend API
     if (resendApiKey) {
       try {
         const response = await fetch('https://api.resend.com/emails', {
@@ -69,52 +98,35 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp }) => {
 
         const resendData = await response.json();
         if (response.ok) {
+          console.log(`[Email Service Success] OTP delivered to ${toEmail} via Resend`);
           return { success: true, provider: 'resend', id: resendData.id };
         }
         console.warn('[Resend API Warning] Response not OK:', resendData);
       } catch (resendError) {
-        console.warn('[Resend API Warning] Falling back to Nodemailer SMTP:', resendError.message);
+        console.warn('[Resend API Exception]:', resendError.message);
       }
     }
 
-    // 2. Fallback: SMTP via Nodemailer
-    let transporter;
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: Number(process.env.SMTP_PORT) === 465,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-    } else {
-      const testAccount = await nodemailer.createTestAccount();
-      transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
-    }
+    // 3. Fallback Test Account
+    const testAccount = await nodemailer.createTestAccount();
+    const fallbackTransporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
 
-    const mailSender = process.env.SMTP_USER
-      ? `"CollegeRide Security" <${process.env.SMTP_USER}>`
-      : fromEmail;
-
-    const mailOptions = {
-      from: mailSender,
+    await fallbackTransporter.sendMail({
+      from: fromEmail,
       to: toEmail,
       subject: `🔑 ${emailOtp} is your CollegeRide Email Verification Code`,
       html: htmlContent,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    return { success: true, provider: 'nodemailer' };
+    return { success: true, provider: 'ethereal' };
   } catch (error) {
     console.error('[Email OTP Service Error]', error.message);
     return { success: false, error: error.message };
