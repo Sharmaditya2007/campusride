@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, X, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import { validateHumanFace } from '../../services/faceValidationService';
+import { Camera, X, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
 
 const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
@@ -8,7 +7,7 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [cameraError, setCameraError] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
+  const [capturing, setCapturing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +34,7 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
       }
     } catch (err) {
       console.error('[Webcam Error]', err);
-      setCameraError('Unable to access camera. Please allow camera permissions in your browser or select photo upload instead.');
+      setCameraError('Unable to access camera. Please allow camera permissions in your browser to take a live selfie.');
     }
   };
 
@@ -46,10 +45,10 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
     }
   };
 
-  const handleCapture = async () => {
+  const handleCapture = () => {
     if (!videoRef.current) return;
 
-    setAnalyzing(true);
+    setCapturing(true);
     try {
       const video = videoRef.current;
       const canvas = document.createElement('canvas');
@@ -64,23 +63,14 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
 
       const capturedBase64 = canvas.toDataURL('image/jpeg', 0.85);
 
-      // Run AI Face Detection
-      const aiResult = await validateHumanFace(capturedBase64);
-
-      if (!aiResult.isValid) {
-        showToast(aiResult.reason || 'No valid face detected. Please align your face inside the circle.', 'error');
-        setAnalyzing(false);
-        return;
-      }
-
-      showToast('✅ Real Human Face Verified!', 'success');
+      showToast('✅ Live Selfie Captured Successfully!', 'success');
       stopCamera();
       onCapture(capturedBase64);
       onClose();
     } catch (err) {
-      showToast('Failed to process camera frame. Please try again.', 'error');
+      showToast('Failed to capture photo. Please try again.', 'error');
     } finally {
-      setAnalyzing(false);
+      setCapturing(false);
     }
   };
 
@@ -102,15 +92,15 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
         <div className="space-y-1">
           <h3 className="text-xl font-extrabold text-white flex items-center justify-center gap-2">
             <Camera className="w-5 h-5 text-emerald-400" />
-            Live Selfie Verification
+            Mandatory Live Selfie Verification
           </h3>
           <p className="text-xs text-slate-400">
-            Center your face inside the oval frame and take a live photo.
+            Center your face inside the circle and click snap photo.
           </p>
         </div>
 
         {/* Camera Viewfinder */}
-        <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-3xl overflow-hidden bg-slate-950 border-2 border-emerald-500/40 shadow-inner flex items-center justify-center">
+        <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-3xl overflow-hidden bg-slate-950 border-2 border-emerald-500/50 shadow-inner flex items-center justify-center">
           {cameraError ? (
             <div className="p-4 text-xs text-amber-400 space-y-2">
               <AlertCircle className="w-8 h-8 mx-auto text-amber-400" />
@@ -126,8 +116,8 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
                 className="w-full h-full object-cover scale-x-[-1]"
               />
 
-              {/* Face Guide Oval Overlay */}
-              <div className="absolute inset-0 border-[3px] border-dashed border-emerald-400/70 rounded-full m-6 pointer-events-none animate-pulse flex items-center justify-center">
+              {/* Face Oval Overlay */}
+              <div className="absolute inset-0 border-[3px] border-dashed border-emerald-400/80 rounded-full m-6 pointer-events-none animate-pulse flex items-center justify-center">
                 <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-widest bg-slate-950/60 px-2 py-0.5 rounded-full">
                   Align Face Here
                 </span>
@@ -141,13 +131,13 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
           {!cameraError && (
             <button
               onClick={handleCapture}
-              disabled={analyzing}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-slate-950 font-extrabold text-xs shadow-xl shadow-emerald-500/20 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={capturing}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-slate-950 font-extrabold text-xs shadow-xl shadow-emerald-500/20 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
-              {analyzing ? (
+              {capturing ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  Analyzing AI Face Match...
+                  Capturing Live Photo...
                 </>
               ) : (
                 <>
@@ -159,7 +149,7 @@ const LiveSelfieModal = ({ isOpen, onClose, onCapture }) => {
           )}
 
           <p className="text-[11px] text-slate-400">
-            🔒 AI verifies face authenticity to ensure student safety on CampusRide.
+            🔒 Live camera photo ensures 100% student safety on CampusRide.
           </p>
         </div>
 
