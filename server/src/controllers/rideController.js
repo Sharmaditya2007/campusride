@@ -27,10 +27,6 @@ const offerRide = async (req, res, next) => {
     }
 
     // Verify user driver eligibility
-    try {
-      const user = await User.findById(req.user._id);
-      if (user && user.verificationStatus !== 'verified') {
-        return errorResponse(res, 403, 'Student verification required before offering rides');
     const user = await User.findById(req.user._id);
     if (user && user.verificationStatus !== 'verified') {
       return errorResponse(res, 403, 'Student verification required before offering rides');

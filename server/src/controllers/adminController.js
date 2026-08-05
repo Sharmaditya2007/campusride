@@ -41,11 +41,6 @@ const getAdminDashboardStats = async (req, res, next) => {
 const getUsersList = async (req, res, next) => {
   try {
     const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
-    return successResponse(res, 200, 'User list retrieved', users);
-// @route   GET /api/admin/users
-const getUsersList = async (req, res, next) => {
-  try {
-    const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
     return successResponse(res, 200, 'Users retrieved for admin', users);
   } catch (error) {
     next(error);
