@@ -21,18 +21,9 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (err) {
         console.warn('[AuthContext] Session check warning:', err.message);
-        // Fallback demo user if token exists but server rebooted
-        setUser({
-          _id: '66a000000000000000000002',
-          fullName: 'Aditya Sharma',
-          email: 'aditya@student.edu',
-          university: 'State Tech University',
-          studentId: 'STU-2026',
-          role: 'student',
-          verificationStatus: 'verified',
-          rating: 4.9,
-          campusPoints: 250,
-        });
+        localStorage.removeItem('campusride_token');
+        setToken(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }

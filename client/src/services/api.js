@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const isProduction = import.meta.env.PROD || window.location.hostname !== 'localhost';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (isProduction ? 'https://campusride-server.onrender.com/api' : 'http://localhost:5000/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL,

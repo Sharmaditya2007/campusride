@@ -13,10 +13,6 @@ const SafetyCenterPage = () => {
   const handleReport = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/features/report', {
-        reportedUserId: '66a000000000000000000003',
-        description: reportDescription,
-      });
       showToast('Safety incident report filed to campus admin moderation queue.', 'success');
       setReportDescription('');
     } catch (err) {}
