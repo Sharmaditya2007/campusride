@@ -47,18 +47,21 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const res = await api.post('/auth/register', {
+      const res = await api.post('/auth/initiate-signup', {
         ...formData,
         university: finalUniversity,
       });
       setLoading(false);
 
       if (res.success) {
-        showToast('Registration successful! Verification OTPs sent to your Email and Mobile Phone.', 'success');
-        navigate('/verify-email', {
+        showToast('Registration initiated! Verification OTPs sent to your Email & WhatsApp.', 'success');
+        navigate('/verify-account', {
           state: {
             email: formData.email,
             phone: formData.phone,
+            whatsAppUrl: res.data?.whatsAppUrl,
+            emailOtpDemo: res.data?.emailOtp,
+            whatsappOtpDemo: res.data?.whatsappOtp,
           },
         });
       }

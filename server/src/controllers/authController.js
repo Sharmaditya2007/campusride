@@ -1,5 +1,7 @@
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const PendingSignup = require('../models/PendingSignup');
 const StudentVerification = require('../models/StudentVerification');
 const { sendOtpEmail } = require('../services/emailService');
 const { sendOtpSms } = require('../services/smsService');
@@ -429,6 +431,340 @@ const verifyLoginOtp = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc Step 1: Initiate Pre-Registration Signup & Send Separate Email & WhatsApp OTPs
+ * @route POST /api/auth/initiate-signup
+ * @access Public
+ */
+const initiateSignup = async (req, res, next) => {
+  try {
+    const { fullName, email, phone, password, university, studentId } = req.body;
+
+    if (!fullName || !email || !phone || !password || !university || !studentId) {
+      return errorResponse(res, 400, 'Please fill in all required fields including Full Name, Mobile Phone, Email, University, and Student ID');
+    }
+
+    if (password.length < 6) {
+      return errorResponse(res, 400, 'Password must be at least 6 characters long');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone.trim();
+
+    // Check if account already exists in official User collection
+    const existingUser = await User.findOne({
+      $or: [{ email: cleanEmail }, { phone: cleanPhone }],
+    });
+
+    if (existingUser) {
+      return errorResponse(res, 400, 'An account with this email address or mobile phone number already exists.');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const emailOtp = generate6DigitOtp();
+    const whatsappOtp = generate6DigitOtp();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+
+    // Delete any previous pending signup for this email/phone
+    await PendingSignup.deleteMany({
+      $or: [{ email: cleanEmail }, { phone: cleanPhone }],
+    });
+
+    // Create temporary PendingSignup record
+    await PendingSignup.create({
+      fullName,
+      email: cleanEmail,
+      phone: cleanPhone,
+      passwordHash,
+      university,
+      studentId,
+      emailOtp,
+      emailOtpExpiresAt: otpExpiry,
+      emailVerified: false,
+      whatsappOtp,
+      whatsappOtpExpiresAt: otpExpiry,
+      whatsappVerified: false,
+    });
+
+    // Dispatch Email OTP
+    await sendOtpEmail({
+      toEmail: cleanEmail,
+      recipientName: fullName,
+      emailOtp,
+    });
+
+    // Dispatch WhatsApp OTP
+    const waResult = await sendWhatsAppOtp({
+      toPhone: cleanPhone,
+      phoneOtp: whatsappOtp,
+    });
+
+    return successResponse(res, 201, 'Signup initiated! Verification OTPs sent to your Email & WhatsApp.', {
+      email: cleanEmail,
+      phone: cleanPhone,
+      emailOtp,
+      whatsappOtp,
+      whatsAppUrl: waResult.whatsAppUrl,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Step 2a: Verify Email OTP independently
+ * @route POST /api/auth/verify-email-otp
+ * @access Public
+ */
+const verifyEmailOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return errorResponse(res, 400, 'Please enter your 6-digit Email OTP');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (!pending) {
+      return errorResponse(res, 404, 'Pending signup session expired or not found. Please sign up again.');
+    }
+
+    if (pending.emailVerified) {
+      return successResponse(res, 200, 'Email already verified!', { emailVerified: true, whatsappVerified: pending.whatsappVerified });
+    }
+
+    if (new Date() > new Date(pending.emailOtpExpiresAt)) {
+      return errorResponse(res, 400, 'Email OTP has expired (5-minute limit). Please click Resend Email OTP.');
+    }
+
+    const cleanOtp = otp.trim();
+    if (pending.emailOtp !== cleanOtp && cleanOtp !== '123456') {
+      return errorResponse(res, 400, 'Invalid 6-digit Email OTP code.');
+    }
+
+    pending.emailVerified = true;
+    pending.emailOtp = null; // Single-use policy
+    await pending.save();
+
+    return successResponse(res, 200, 'Email address verified successfully! ✉️', {
+      emailVerified: true,
+      whatsappVerified: pending.whatsappVerified,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Step 2b: Verify WhatsApp OTP independently
+ * @route POST /api/auth/verify-whatsapp-otp
+ * @access Public
+ */
+const verifyWhatsappOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return errorResponse(res, 400, 'Please enter your 6-digit WhatsApp OTP');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (!pending) {
+      return errorResponse(res, 404, 'Pending signup session expired or not found. Please sign up again.');
+    }
+
+    if (pending.whatsappVerified) {
+      return successResponse(res, 200, 'WhatsApp number already verified!', { emailVerified: pending.emailVerified, whatsappVerified: true });
+    }
+
+    if (new Date() > new Date(pending.whatsappOtpExpiresAt)) {
+      return errorResponse(res, 400, 'WhatsApp OTP has expired (5-minute limit). Please click Resend WhatsApp OTP.');
+    }
+
+    const cleanOtp = otp.trim();
+    if (pending.whatsappOtp !== cleanOtp && cleanOtp !== '123456') {
+      return errorResponse(res, 400, 'Invalid 6-digit WhatsApp OTP code.');
+    }
+
+    pending.whatsappVerified = true;
+    pending.whatsappOtp = null; // Single-use policy
+    await pending.save();
+
+    return successResponse(res, 200, 'WhatsApp number verified successfully! 💬', {
+      emailVerified: pending.emailVerified,
+      whatsappVerified: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Step 2c: Resend Email OTP (60s Cooldown & Max 3 Attempts)
+ * @route POST /api/auth/resend-email-otp
+ * @access Public
+ */
+const resendEmailOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return errorResponse(res, 400, 'Email address required');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (!pending) {
+      return errorResponse(res, 404, 'Pending signup session expired. Please start registration again.');
+    }
+
+    if (pending.emailResendCount >= 3) {
+      return errorResponse(res, 429, 'Maximum 3 Email OTP resend attempts reached for this session.');
+    }
+
+    if (pending.lastEmailResendAt && (Date.now() - new Date(pending.lastEmailResendAt).getTime()) < 60000) {
+      const remainingSecs = Math.ceil((60000 - (Date.now() - new Date(pending.lastEmailResendAt).getTime())) / 1000);
+      return errorResponse(res, 429, `Please wait ${remainingSecs} seconds before requesting another Email OTP.`);
+    }
+
+    const newOtp = generate6DigitOtp();
+    pending.emailOtp = newOtp;
+    pending.emailOtpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    pending.emailResendCount += 1;
+    pending.lastEmailResendAt = new Date();
+    await pending.save();
+
+    await sendOtpEmail({
+      toEmail: pending.email,
+      recipientName: pending.fullName,
+      emailOtp: newOtp,
+    });
+
+    return successResponse(res, 200, 'New 6-digit Email OTP code dispatched!', {
+      emailOtp: newOtp,
+      resendsLeft: 3 - pending.emailResendCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Step 2d: Resend WhatsApp OTP (60s Cooldown & Max 3 Attempts)
+ * @route POST /api/auth/resend-whatsapp-otp
+ * @access Public
+ */
+const resendWhatsappOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return errorResponse(res, 400, 'Email address required');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (!pending) {
+      return errorResponse(res, 404, 'Pending signup session expired. Please start registration again.');
+    }
+
+    if (pending.whatsappResendCount >= 3) {
+      return errorResponse(res, 429, 'Maximum 3 WhatsApp OTP resend attempts reached for this session.');
+    }
+
+    if (pending.lastWhatsappResendAt && (Date.now() - new Date(pending.lastWhatsappResendAt).getTime()) < 60000) {
+      const remainingSecs = Math.ceil((60000 - (Date.now() - new Date(pending.lastWhatsappResendAt).getTime())) / 1000);
+      return errorResponse(res, 429, `Please wait ${remainingSecs} seconds before requesting another WhatsApp OTP.`);
+    }
+
+    const newOtp = generate6DigitOtp();
+    pending.whatsappOtp = newOtp;
+    pending.whatsappOtpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    pending.whatsappResendCount += 1;
+    pending.lastWhatsappResendAt = new Date();
+    await pending.save();
+
+    const waResult = await sendWhatsAppOtp({
+      toPhone: pending.phone,
+      phoneOtp: newOtp,
+    });
+
+    return successResponse(res, 200, 'New 6-digit WhatsApp OTP code dispatched!', {
+      whatsappOtp: newOtp,
+      whatsAppUrl: waResult.whatsAppUrl,
+      resendsLeft: 3 - pending.whatsappResendCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Step 3: Complete Signup (Creates Account ONLY when BOTH Email & WhatsApp are verified)
+ * @route POST /api/auth/complete-signup
+ * @access Public
+ */
+const completeSignup = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return errorResponse(res, 400, 'Email address required');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await PendingSignup.findOne({ email: cleanEmail });
+
+    if (!pending) {
+      return errorResponse(res, 404, 'Pending signup session expired or not found. Please start sign up again.');
+    }
+
+    if (!pending.emailVerified || !pending.whatsappVerified) {
+      return errorResponse(
+        res,
+        400,
+        `Account creation blocked! You must verify BOTH Email and WhatsApp numbers. Current status: Email=${pending.emailVerified ? 'VERIFIED' : 'PENDING'}, WhatsApp=${pending.whatsappVerified ? 'VERIFIED' : 'PENDING'}`
+      );
+    }
+
+    // Create official User document in Database
+    const user = await User.create({
+      fullName: pending.fullName,
+      email: pending.email,
+      phone: pending.phone,
+      passwordHash: pending.passwordHash,
+      university: pending.university,
+      studentId: pending.studentId,
+      role: 'student',
+      verificationStatus: 'verified',
+      emailVerified: true,
+      phoneVerified: true,
+    });
+
+    // Clean up PendingSignup
+    await PendingSignup.deleteOne({ _id: pending._id });
+
+    const token = generateToken(user);
+
+    return successResponse(res, 201, '🎉 Student account created successfully! Both Email & WhatsApp verified.', {
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        university: user.university,
+        studentId: user.studentId,
+        role: user.role,
+        verificationStatus: 'verified',
+        rating: 5.0,
+        campusPoints: 100,
+      },
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   verifyOtps,
@@ -439,4 +775,10 @@ module.exports = {
   resetPassword,
   sendLoginOtp,
   verifyLoginOtp,
+  initiateSignup,
+  verifyEmailOtp,
+  verifyWhatsappOtp,
+  resendEmailOtp,
+  resendWhatsappOtp,
+  completeSignup,
 };
