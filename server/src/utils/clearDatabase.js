@@ -14,6 +14,10 @@ const RideRequest = require('../models/RideRequest');
 const StudentVerification = require('../models/StudentVerification');
 const DriverProfile = require('../models/DriverProfile');
 const CommuteGroup = require('../models/CommuteGroup');
+const PendingSignup = require('../models/PendingSignup');
+const Transaction = require('../models/Transaction');
+const Notification = require('../models/Notification');
+const Report = require('../models/Report');
 
 const clearDatabase = async () => {
   try {
@@ -28,13 +32,21 @@ const clearDatabase = async () => {
     const stuCount = await StudentVerification.deleteMany({});
     const drvCount = await DriverProfile.deleteMany({});
     const grpCount = await CommuteGroup.deleteMany({});
+    const pendingCount = await PendingSignup.deleteMany({});
+    const txCount = await Transaction.deleteMany({});
+    const notifCount = await Notification.deleteMany({});
+    const repCount = await Report.deleteMany({});
 
     console.log('====================================================');
-    console.log(`✅ Successfully wiped fake database records from MongoDB Atlas!`);
+    console.log(`✅ Successfully wiped ALL database collections from MongoDB Atlas!`);
     console.log(`   Deleted Users: ${userCount.deletedCount}`);
     console.log(`   Deleted Rides: ${rideCount.deletedCount}`);
     console.log(`   Deleted Vehicles: ${vehCount.deletedCount}`);
     console.log(`   Deleted Ride Requests: ${reqCount.deletedCount}`);
+    console.log(`   Deleted Pending Signups: ${pendingCount.deletedCount}`);
+    console.log(`   Deleted Transactions: ${txCount.deletedCount}`);
+    console.log(`   Deleted Notifications: ${notifCount.deletedCount}`);
+    console.log(`   Deleted Safety Reports: ${repCount.deletedCount}`);
     console.log('====================================================');
     process.exit(0);
   } catch (error) {
