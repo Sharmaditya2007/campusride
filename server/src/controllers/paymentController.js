@@ -432,6 +432,89 @@ const getPlatformEarnings = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc Top Up Campus Wallet via UPI QR Scan
+ * @route POST /api/payments/topup-upi
+ * @access Private
+ */
+const topupViaUPI = async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    const userId = req.user.id;
+
+    if (!amount || Number(amount) <= 0) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid top-up amount' });
+    }
+
+    const topUpAmount = Number(amount);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.walletBalance += topUpAmount;
+    await user.save();
+
+    const txnId = `topup_upi_${Date.now()}`;
+    const transaction = await Transaction.create({
+      userId,
+      type: 'wallet_topup',
+      amount: topUpAmount,
+      baseFare: topUpAmount,
+      platformFee: 0,
+      paymentGateway: 'upi_qr',
+      gatewayOrderId: txnId,
+      gatewayPaymentId: txnId,
+      status: 'paid',
+      description: 'Campus Wallet Top-Up via Dynamic UPI QR Code Scan',
+    });
+
+    await Notification.create({
+      userId,
+      type: 'general',
+      title: '💳 Wallet Top-Up Successful!',
+      message: `₹${topUpAmount} credited to your Campus Wallet via UPI QR. New balance: ₹${user.walletBalance}.`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `₹${topUpAmount} credited to wallet via UPI!`,
+      data: {
+        newWalletBalance: user.walletBalance,
+        transaction,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Generate Dynamic UPI Payment Intent Parameters
+ * @route POST /api/payments/generate-upi-qr
+ * @access Private
+ */
+const generateUPIIntent = async (req, res, next) => {
+  try {
+    const { amount, note } = req.body;
+    const vpa = 'campusride@upi';
+    const upiUri = `upi://pay?pa=${vpa}&pn=CampusRide%20Carpool&am=${amount || 50}&cu=INR&tn=${encodeURIComponent(note || 'CampusRide Payment')}`;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        vpa,
+        payeeName: 'CampusRide Carpool',
+        amount: amount || 50,
+        currency: 'INR',
+        upiUri,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
@@ -439,4 +522,6 @@ module.exports = {
   subscribeVipPass,
   getWalletAndTransactions,
   getPlatformEarnings,
+  topupViaUPI,
+  generateUPIIntent,
 };

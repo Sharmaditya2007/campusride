@@ -1,39 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Crown, ArrowDownLeft, ArrowUpRight, TrendingUp, Sparkles, ShieldCheck, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+import { Wallet, Crown, ArrowDownLeft, ArrowUpRight, TrendingUp, Sparkles, ShieldCheck, RefreshCw, AlertCircle, CheckCircle2, QrCode, FileText } from 'lucide-react';
+import MainLayout from '../layouts/MainLayout';
+import api from '../services/api';
+import UPIPaymentModal from '../components/payment/UPIPaymentModal';
+import FareReceiptModal from '../components/payment/FareReceiptModal';
+import { useNotifications } from '../context/NotificationContext';
 
 const WalletPage = () => {
+  const { showToast } = useNotifications();
   const [walletData, setWalletData] = useState(null);
   const [adminStats, setAdminStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [vipLoading, setVipLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: '', text: '' });
+  
+  const [upiModalOpen, setUpiModalOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState(200);
+  
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
 
   const fetchWallet = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/payments/wallet`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        setWalletData(res.data.data);
+      const res = await api.get('/payments/wallet');
+      if (res.success) {
+        setWalletData(res.data);
       }
 
       // Check if admin to fetch platform revenue
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(localStorage.getItem('campusride_user') || '{}');
       if (user.role === 'admin') {
-        const adminRes = await axios.get(`${API_BASE_URL}/payments/admin/platform-earnings`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (adminRes.data.success) {
-          setAdminStats(adminRes.data.data);
+        const adminRes = await api.get('/payments/admin/platform-earnings');
+        if (adminRes.success) {
+          setAdminStats(adminRes.data);
         }
       }
     } catch (err) {
-      setMsg({ type: 'error', text: 'Failed to load wallet data' });
+      console.warn('[Wallet] Load error:', err.message);
     } finally {
       setLoading(false);
     }
@@ -46,98 +49,96 @@ const WalletPage = () => {
   const handleSubscribeVip = async () => {
     try {
       setVipLoading(true);
-      setMsg({ type: '', text: '' });
-      const token = localStorage.getItem('token');
-      const res = await axios.post(
-        `${API_BASE_URL}/payments/subscribe-vip`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data.success) {
-        setMsg({ type: 'success', text: '⭐ CampusRide VIP Pass activated! 0% booking fees enabled.' });
+      const res = await api.post('/payments/subscribe-vip');
+      if (res.success) {
+        showToast('⭐ CampusRide VIP Pass activated! 0% booking fees enabled.', 'success');
         fetchWallet();
       }
     } catch (err) {
-      setMsg({ type: 'error', text: err.response?.data?.message || 'Failed to activate VIP Pass.' });
+      showToast(err.message || 'Failed to activate VIP Pass.', 'error');
     } finally {
       setVipLoading(false);
     }
   };
 
+  const handleTopUpSuccess = (data) => {
+    fetchWallet();
+  };
+
+  const openReceipt = (txn) => {
+    setSelectedReceipt(txn);
+    setReceiptModalOpen(true);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
-        <div className="flex items-center gap-3 text-indigo-400">
-          <RefreshCw className="w-6 h-6 animate-spin" />
-          <span className="font-semibold">Loading Campus Wallet...</span>
+      <MainLayout>
+        <div className="min-h-[60vh] flex items-center justify-center p-6">
+          <div className="flex items-center gap-3 text-emerald-400">
+            <RefreshCw className="w-6 h-6 animate-spin" />
+            <span className="font-semibold text-sm">Loading Campus Wallet...</span>
+          </div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   const { walletBalance = 0, isVipPass = false, vipPassExpiresAt, transactions = [] } = walletData || {};
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+    <MainLayout>
       <div className="max-w-5xl mx-auto space-y-8">
+        
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
-              Campus Wallet & Earnings
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Manage your ride payments, driver earnings, and platform subscription.
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-white">Campus Wallet & Earnings</h1>
+            <p className="text-slate-400 text-xs sm:text-sm mt-1">
+              Manage instant ride payments, driver earnings, and dynamic UPI QR top-ups.
             </p>
           </div>
           <button
             onClick={fetchWallet}
-            className="flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-slate-300 transition w-max"
+            className="flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 hover:bg-slate-850 px-3 py-2 rounded-xl text-slate-300 transition w-max shrink-0"
           >
-            <RefreshCw className="w-4 h-4" />
-            Refresh Balance
+            <RefreshCw className="w-4 h-4" /> Refresh Balance
           </button>
         </div>
 
-        {/* Alert Notifications */}
-        {msg.text && (
-          <div
-            className={`p-4 rounded-xl text-sm flex items-center gap-3 border ${
-              msg.type === 'error'
-                ? 'bg-red-500/10 border-red-500/30 text-red-400'
-                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-            }`}
-          >
-            {msg.type === 'error' ? <AlertCircle className="w-5 h-5 shrink-0" /> : <CheckCircle2 className="w-5 h-5 shrink-0" />}
-            <span>{msg.text}</span>
-          </div>
-        )}
-
         {/* Top Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Balance Card */}
-          <div className="bg-gradient-to-br from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center justify-between text-indigo-400 mb-4">
+          
+          {/* Balance Card with UPI QR Top-Up */}
+          <div className="glass-card border border-emerald-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between space-y-4">
+            <div className="flex items-center justify-between text-emerald-400">
               <span className="text-xs font-bold uppercase tracking-wider">Available Balance</span>
               <Wallet className="w-6 h-6" />
             </div>
-            <div className="text-4xl font-black text-white">₹{walletBalance}</div>
-            <p className="text-xs text-slate-400 mt-2">
-              Usable for instant ride bookings and driver payouts.
-            </p>
+            <div>
+              <div className="text-4xl font-black text-white">₹{walletBalance}</div>
+              <p className="text-xs text-slate-400 mt-1">
+                Usable for instant seat bookings and driver payouts.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setUpiModalOpen(true)}
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition"
+            >
+              <QrCode className="w-4 h-4" /> Top Up via UPI QR
+            </button>
           </div>
 
           {/* VIP Pass Card */}
-          <div className="bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-            <div className="flex items-center justify-between text-amber-400 mb-2">
+          <div className="glass-card border border-amber-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between space-y-4">
+            <div className="flex items-center justify-between text-amber-400">
               <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1">
                 <Crown className="w-4 h-4 text-amber-400" />
                 Campus VIP Pass
               </span>
               <Sparkles className="w-5 h-5" />
             </div>
+
             {isVipPass ? (
               <div>
                 <div className="text-xl font-bold text-amber-300">ACTIVE VIP MEMBER</div>
@@ -145,7 +146,7 @@ const WalletPage = () => {
                   Valid until {new Date(vipPassExpiresAt).toLocaleDateString()}
                 </p>
                 <span className="inline-block mt-3 text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30 font-semibold">
-                  0% Booking Fees Enabled
+                  0% Booking Fees Active
                 </span>
               </div>
             ) : (
@@ -157,7 +158,7 @@ const WalletPage = () => {
                 <button
                   onClick={handleSubscribeVip}
                   disabled={vipLoading}
-                  className="mt-3 w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-1.5"
+                  className="mt-3 w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold text-xs rounded-2xl shadow-lg transition flex items-center justify-center gap-1.5"
                 >
                   {vipLoading ? 'Activating...' : 'Activate Pass Now'}
                 </button>
@@ -167,15 +168,15 @@ const WalletPage = () => {
 
           {/* Admin Platform Revenue (Visible to Admins) */}
           {adminStats && (
-            <div className="bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between text-emerald-400 mb-4">
+            <div className="glass-card border border-indigo-500/30 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+              <div className="flex items-center justify-between text-indigo-400">
                 <span className="text-xs font-bold uppercase tracking-wider">Platform Earnings</span>
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <div className="text-3xl font-black text-emerald-400">
+              <div className="text-3xl font-black text-indigo-300">
                 ₹{adminStats.totalPlatformCommission}
               </div>
-              <div className="text-xs text-slate-400 mt-2 space-y-1">
+              <div className="text-xs text-slate-400 space-y-1">
                 <div>Total Volume: ₹{adminStats.totalTransactionVolume}</div>
                 <div>Completed Rides: {adminStats.totalPaidTransactions}</div>
               </div>
@@ -184,54 +185,61 @@ const WalletPage = () => {
         </div>
 
         {/* Transactions Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="glass-card border border-slate-800 rounded-3xl overflow-hidden shadow-xl space-y-0">
           <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-indigo-400" />
-              Recent Transactions
+            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              Transaction Ledger
             </h3>
             <span className="text-xs text-slate-400">{transactions.length} Records</span>
           </div>
 
           {transactions.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 text-sm">
-              No transactions recorded yet. Complete a ride booking to see your ledger here!
+            <div className="p-12 text-center text-slate-500 text-xs">
+              No transaction history found. Book a ride or scan UPI QR to add funds!
             </div>
           ) : (
-            <div className="divide-y divide-slate-800 overflow-x-auto">
+            <div className="divide-y divide-slate-800/80 overflow-x-auto">
               {transactions.map((txn) => {
                 const isDebit = txn.type === 'ride_payment' || txn.type === 'vip_subscription';
                 return (
-                  <div key={txn._id} className="p-4 flex items-center justify-between hover:bg-slate-800/40 transition">
+                  <div
+                    key={txn._id}
+                    onClick={() => openReceipt(txn)}
+                    className="p-4 flex items-center justify-between hover:bg-slate-800/40 cursor-pointer transition text-xs"
+                  >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                           isDebit ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'
                         }`}
                       >
-                        {isDebit ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownLeft className="w-5 h-5" />}
+                        {isDebit ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownLeft className="w-4 h-4" />}
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-white">{txn.description}</div>
-                        <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                        <div className="font-semibold text-white">{txn.description}</div>
+                        <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
                           <span>{new Date(txn.createdAt).toLocaleString()}</span>
                           <span>•</span>
-                          <span className="uppercase text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">
+                          <span className="uppercase text-[9px] bg-slate-950 px-2 py-0.5 rounded text-emerald-400 font-mono">
                             {txn.paymentGateway}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className={`text-base font-bold ${isDebit ? 'text-slate-200' : 'text-emerald-400'}`}>
-                        {isDebit ? `-₹${txn.amount}` : `+₹${txn.amount}`}
-                      </div>
-                      {txn.platformFee > 0 && (
-                        <div className="text-[11px] text-indigo-400">
-                          (Includes ₹{txn.platformFee} platform fee)
+                    <div className="text-right flex items-center gap-3">
+                      <div>
+                        <div className={`font-bold text-sm ${isDebit ? 'text-slate-200' : 'text-emerald-400'}`}>
+                          {isDebit ? `-₹${txn.amount}` : `+₹${txn.amount}`}
                         </div>
-                      )}
+                        {txn.platformFee > 0 && (
+                          <div className="text-[10px] text-indigo-400">
+                            (Fee: ₹{txn.platformFee})
+                          </div>
+                        )}
+                      </div>
+                      <FileText className="w-4 h-4 text-slate-500 hover:text-emerald-400 transition" title="View Digital Receipt" />
                     </div>
                   </div>
                 );
@@ -239,8 +247,25 @@ const WalletPage = () => {
             </div>
           )}
         </div>
+
+        {/* UPI QR Modal */}
+        <UPIPaymentModal
+          isOpen={upiModalOpen}
+          onClose={() => setUpiModalOpen(false)}
+          amount={topUpAmount}
+          note="Campus Wallet UPI Top-Up"
+          onPaymentSuccess={handleTopUpSuccess}
+        />
+
+        {/* Fare Receipt Modal */}
+        <FareReceiptModal
+          isOpen={receiptModalOpen}
+          onClose={() => setReceiptModalOpen(false)}
+          transaction={selectedReceipt}
+        />
+
       </div>
-    </div>
+    </MainLayout>
   );
 };
 
