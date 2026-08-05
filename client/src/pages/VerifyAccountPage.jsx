@@ -15,8 +15,6 @@ const VerifyAccountPage = () => {
   const phone = state.phone || '';
   
   const [whatsAppUrl, setWhatsAppUrl] = useState(state.whatsAppUrl || '');
-  const [emailOtpDemo, setEmailOtpDemo] = useState(state.emailOtpDemo || '');
-  const [whatsappOtpDemo, setWhatsappOtpDemo] = useState(state.whatsappOtpDemo || '');
 
   // Verification States
   const [emailOtp, setEmailOtp] = useState('');
@@ -226,12 +224,6 @@ const VerifyAccountPage = () => {
             )}
           </div>
 
-          {emailOtpDemo && !emailVerified && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
-              Generated Email OTP: <span className="font-extrabold text-sm">{emailOtpDemo}</span>
-            </div>
-          )}
-
           {!emailVerified ? (
             <form onSubmit={handleVerifyEmail} className="space-y-3">
               <div className="flex gap-2">
@@ -283,12 +275,6 @@ const VerifyAccountPage = () => {
               </span>
             )}
           </div>
-
-          {whatsappOtpDemo && !whatsappVerified && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
-              Generated WhatsApp OTP: <span className="font-extrabold text-sm">{whatsappOtpDemo}</span>
-            </div>
-          )}
 
           {!whatsappVerified ? (
             <form onSubmit={handleVerifyWhatsapp} className="space-y-3">

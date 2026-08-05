@@ -59,9 +59,6 @@ const LoginPage = () => {
         if (res.data?.whatsAppUrl) {
           setWhatsAppUrl(res.data.whatsAppUrl);
         }
-        if (res.data?.emailOtp) {
-          setOtpNotice(`OTP Code: ${res.data.emailOtp}`);
-        }
         setOtpStep(2);
       }
     } catch (err) {
@@ -181,12 +178,6 @@ const LoginPage = () => {
               ) : (
                 /* Step 2: Input 6-Digit OTP */
                 <form onSubmit={handleVerifyOtp} className="space-y-4 animate-fade-in">
-                  
-                  {otpNotice && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
-                      {otpNotice}
-                    </div>
-                  )}
 
                   <div>
                     <div className="flex items-center justify-between mb-1.5">

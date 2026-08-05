@@ -357,8 +357,6 @@ const sendLoginOtp = async (req, res, next) => {
     return successResponse(res, 200, `Real-Time Login OTP sent to ${user.email} & WhatsApp (${user.phone})`, {
       email: user.email,
       phone: user.phone,
-      emailOtp,
-      phoneOtp,
       whatsAppUrl: waResult.whatsAppUrl,
     });
   } catch (error) {
@@ -504,8 +502,6 @@ const initiateSignup = async (req, res, next) => {
     return successResponse(res, 201, 'Signup initiated! Verification OTPs sent to your Email & WhatsApp.', {
       email: cleanEmail,
       phone: cleanPhone,
-      emailOtp,
-      whatsappOtp,
       whatsAppUrl: waResult.whatsAppUrl,
     });
   } catch (error) {
@@ -644,8 +640,7 @@ const resendEmailOtp = async (req, res, next) => {
       emailOtp: newOtp,
     });
 
-    return successResponse(res, 200, 'New 6-digit Email OTP code dispatched!', {
-      emailOtp: newOtp,
+    return successResponse(res, 200, 'New 6-digit Email OTP code dispatched to your inbox!', {
       resendsLeft: 3 - pending.emailResendCount,
     });
   } catch (error) {
@@ -692,7 +687,6 @@ const resendWhatsappOtp = async (req, res, next) => {
     });
 
     return successResponse(res, 200, 'New 6-digit WhatsApp OTP code dispatched!', {
-      whatsappOtp: newOtp,
       whatsAppUrl: waResult.whatsAppUrl,
       resendsLeft: 3 - pending.whatsappResendCount,
     });
