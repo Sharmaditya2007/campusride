@@ -54,7 +54,7 @@ const Footer = () => {
             <ul className="space-y-2.5 text-xs">
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Student ID Verification</Link></li>
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Driver License Auditing</Link></li>
-              <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Emergency SOS & Tracking</Link></li>
+              <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Safety Protocols & Verification</Link></li>
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Community Guidelines</Link></li>
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Trust & Rating Protocol</Link></li>
             </ul>

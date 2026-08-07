@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import SOSModal from '../components/safety/SOSModal';
 import QuickBoardingModal from '../components/rides/QuickBoardingModal';
 import MatchScoreBadge from '../components/rides/MatchScoreBadge';
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +16,6 @@ const RideDetailPage = () => {
 
   const [ride, setRide] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sosOpen, setSosOpen] = useState(false);
   const [boardingOpen, setBoardingOpen] = useState(false);
   const [requestedSeats, setRequestedSeats] = useState(1);
 
@@ -114,12 +112,6 @@ const RideDetailPage = () => {
               <Share2 className="w-3.5 h-3.5 text-emerald-400" /> Share My Ride
             </button>
 
-            <button
-              onClick={() => setSosOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs font-bold hover:bg-red-900/60 flex items-center gap-1.5"
-            >
-              <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Emergency SOS
-            </button>
           </div>
         </div>
 
@@ -293,7 +285,6 @@ const RideDetailPage = () => {
         </div>
 
         {/* Modals */}
-        <SOSModal isOpen={sosOpen} onClose={() => setSosOpen(false)} ride={ride} />
         <QuickBoardingModal isOpen={boardingOpen} onClose={() => setBoardingOpen(false)} request={{ boardingOtp: '4829' }} />
 
       </div>

@@ -4,13 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from './UserAvatar';
 import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet, ShieldAlert } from 'lucide-react';
-import LiveSOSTrackerModal from './LiveSOSTrackerModal';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logoutUser } = useAuth();
   const { unreadCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sosModalOpen, setSosModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 

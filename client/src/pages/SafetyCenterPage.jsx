@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import SOSModal from '../components/safety/SOSModal';
 import { useNotifications } from '../context/NotificationContext';
-import api from '../services/api';
-import { ShieldCheck, AlertTriangle, PhoneCall, Lock, EyeOff, Share2, FileWarning } from 'lucide-react';
+import { ShieldCheck, PhoneCall, EyeOff, FileWarning } from 'lucide-react';
 
 const SafetyCenterPage = () => {
   const { showToast } = useNotifications();
-  const [sosModalOpen, setSosModalOpen] = useState(false);
   const [reportDescription, setReportDescription] = useState('');
 
   const handleReport = async (e) => {
@@ -30,24 +27,6 @@ const SafetyCenterPage = () => {
           <p className="text-slate-400 text-xs sm:text-sm">
             Learn about our multi-layer verification, emergency tools, and community safety guidelines.
           </p>
-        </div>
-
-        {/* SOS Banner */}
-        <div className="glass-card p-8 rounded-3xl border-red-500/40 bg-gradient-to-r from-red-950/40 to-slate-950 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" /> Rapid Emergency SOS
-            </h3>
-            <p className="text-xs text-slate-300 max-w-lg">
-              In case of any safety concern during an active ride, instantly dispatch your trip telemetry and location to your emergency contacts.
-            </p>
-          </div>
-          <button
-            onClick={() => setSosModalOpen(true)}
-            className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-extrabold text-xs shadow-xl shadow-red-600/30 hover:opacity-90 shrink-0"
-          >
-            TEST EMERGENCY SOS
-          </button>
         </div>
 
         {/* Safety Pillars Grid */}
@@ -96,8 +75,6 @@ const SafetyCenterPage = () => {
             </button>
           </form>
         </div>
-
-        <SOSModal isOpen={sosModalOpen} onClose={() => setSosModalOpen(false)} />
 
       </div>
     </MainLayout>
