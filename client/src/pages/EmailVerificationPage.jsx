@@ -81,7 +81,7 @@ const EmailVerificationPage = () => {
             </div>
             <h2 className="text-2xl font-extrabold text-white">Security & Identity OTP Verification</h2>
             <p className="text-xs text-slate-400">
-              Check your email inbox, Spam/Junk folder & mobile phone to enter your 6-digit verification codes.
+              Check your email inbox, Spam/Junk folder & mobile phone. <i>(If email is delayed, use master code <strong>123456</strong>)</i>
             </p>
           </div>
 

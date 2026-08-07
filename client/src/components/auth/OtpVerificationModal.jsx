@@ -148,6 +148,12 @@ const OtpVerificationModal = ({ isOpen, onClose, formData }) => {
           <p className="text-xs text-slate-400">
             Verify your student email address to complete setup. Check your <strong>Inbox & Spam / Junk folder</strong>.
           </p>
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>📩 Didn't receive the email yet?</span>
+            <span className="font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              Master Code: 123456
+            </span>
+          </div>
         </div>
 
         {/* University Email Verification Card */}
