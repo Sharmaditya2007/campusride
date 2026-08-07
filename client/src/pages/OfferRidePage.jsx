@@ -225,24 +225,6 @@ const OfferRidePage = () => {
               </div>
             </div>
 
-            {/* Recurring Ride Checkbox */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isRecurring}
-                  onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
-                  className="w-4 h-4 accent-emerald-500 rounded"
-                />
-                <span className="font-bold text-slate-200">Recurring College Commute</span>
-              </label>
-              {formData.isRecurring && (
-                <p className="text-[11px] text-slate-400">
-                  Automatically offers this ride every weekday (Mon-Fri) at your set departure time.
-                </p>
-              )}
-            </div>
-
             {/* Notes */}
             <div>
               <label className="block font-semibold text-slate-300 mb-1">Ride Notes for Passengers</label>
