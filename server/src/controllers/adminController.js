@@ -79,32 +79,6 @@ const getPendingVerifications = async (req, res, next) => {
       driverRequests = await DriverProfile.find({ verificationStatus: 'pending' }).populate('userId', 'fullName email university studentId');
     } catch (err) {}
 
-    if (studentRequests.length === 0) {
-      studentRequests = [
-        {
-          _id: 'sver_101',
-          userId: { fullName: 'Neha Kapoor', email: 'neha@chitkara.edu', university: 'Chitkara University', studentId: 'CHK-4410' },
-          verificationType: 'id_card',
-          documentUrl: 'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?auto=format&fit=crop&q=80&w=400',
-          status: 'pending',
-          createdAt: new Date(),
-        },
-      ];
-    }
-
-    if (driverRequests.length === 0) {
-      driverRequests = [
-        {
-          _id: 'dver_201',
-          userId: { fullName: 'Rohan Gupta', email: 'rohan@student.edu', university: 'State University', studentId: 'STU-1102' },
-          licenceNumber: 'DL-04201198822',
-          licenceDocumentUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=400',
-          verificationStatus: 'pending',
-          createdAt: new Date(),
-        },
-      ];
-    }
-
     return successResponse(res, 200, 'Pending verifications retrieved', {
       studentVerifications: studentRequests,
       driverVerifications: driverRequests,
@@ -185,25 +159,11 @@ const getAdminReports = async (req, res, next) => {
   try {
     let reports = [];
     try {
-      reports = await Report.find()
+      reports = await Report.find({})
         .populate('reporterId', 'fullName email')
         .populate('reportedUserId', 'fullName email')
         .sort({ createdAt: -1 });
     } catch (err) {}
-
-    if (reports.length === 0) {
-      reports = [
-        {
-          _id: 'rep_1',
-          reporterId: { fullName: 'Aman Sharma', email: 'aman@student.edu' },
-          reportedUserId: { fullName: 'Simran Singh', email: 'simran@student.edu' },
-          category: 'no_show',
-          description: 'Passenger did not show up at designated pickup hub without notice.',
-          status: 'pending',
-          createdAt: new Date(),
-        },
-      ];
-    }
 
     return successResponse(res, 200, 'Admin reports fetched', reports);
   } catch (error) {
