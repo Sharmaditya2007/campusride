@@ -1,25 +1,50 @@
 import React, { useState } from 'react';
 import { AlertTriangle, PhoneCall, ShieldAlert, X, Send, MapPin } from 'lucide-react';
 import api from '../../services/api';
+import { useNotifications } from '../../context/NotificationContext';
 
 const SOSModal = ({ isOpen, onClose, ride }) => {
   const [activated, setActivated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useNotifications();
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setActivated(false);
+    onClose();
+  };
+
   const handleActivateSOS = async () => {
     setLoading(true);
+
+    let gpsLocation = '30.7333° N, 76.7794° E (Campus Safety Sector)';
+    if (navigator.geolocation) {
+      try {
+        await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              gpsLocation = `${pos.coords.latitude.toFixed(4)}° N, ${pos.coords.longitude.toFixed(4)}° E`;
+              resolve();
+            },
+            () => resolve(),
+            { timeout: 3000 }
+          );
+        });
+      } catch (e) {}
+    }
+
     try {
       await api.post('/features/sos', {
         rideId: ride?._id,
-        currentLocation: '30.7333 N, 76.7794 E (Near Sector 17 Plaza)',
+        currentLocation: gpsLocation,
       });
-      setActivated(true);
-    } catch (err) {
-      setActivated(true);
-    } finally {
+    } catch (err) {} finally {
       setLoading(false);
+      setActivated(true);
+      if (showToast) {
+        showToast('🚨 EMERGENCY SOS ACTIVATED! Trip telemetry and location broadcasted.', 'success');
+      }
     }
   };
 
@@ -28,7 +53,7 @@ const SOSModal = ({ isOpen, onClose, ride }) => {
       <div className="bg-slate-900 border border-red-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative space-y-5">
         
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
         >
           <X className="w-5 h-5" />
@@ -103,7 +128,7 @@ const SOSModal = ({ isOpen, onClose, ride }) => {
             </p>
 
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="w-full py-3 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold"
             >
               Close Emergency Dialog

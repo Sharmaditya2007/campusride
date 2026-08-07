@@ -9,6 +9,6 @@ router.get('/commute-groups', getCommuteGroups);
 router.post('/commute-groups', protect, createCommuteGroup);
 router.get('/environmental-impact', getEnvironmentalImpact);
 router.post('/report', protect, submitReport);
-router.post('/sos', protect, triggerSOS);
+router.post('/sos', triggerSOS);
 
 module.exports = router;
