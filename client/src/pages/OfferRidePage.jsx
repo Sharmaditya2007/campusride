@@ -190,7 +190,7 @@ const OfferRidePage = () => {
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Contribution / Seat (₹)</label>
                 <div className="relative">
-                  <DollarSign className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
+                  <span className="text-emerald-400 font-bold text-sm absolute left-3.5 top-2.5 select-none">₹</span>
                   <input
                     type="number"
                     min="0"

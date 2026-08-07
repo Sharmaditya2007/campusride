@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import api from '../services/api';
-import { Leaf, DollarSign, Car, Award, BarChart3, Info } from 'lucide-react';
+import { Leaf, IndianRupee, Car, Award, BarChart3, Info } from 'lucide-react';
 
 const EnvironmentalImpactPage = () => {
   const [stats, setStats] = useState({
@@ -57,7 +57,7 @@ const EnvironmentalImpactPage = () => {
           </div>
 
           <div className="glass-card p-6 rounded-3xl border-slate-800 space-y-2">
-            <DollarSign className="w-6 h-6 text-amber-400" />
+            <IndianRupee className="w-6 h-6 text-amber-400" />
             <span className="text-slate-400 text-xs font-medium block">Student Money Saved</span>
             <span className="text-2xl font-black text-amber-400 block">₹{stats.estimatedMoneySavedINR.toLocaleString()}</span>
           </div>
