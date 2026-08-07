@@ -43,7 +43,6 @@ const Footer = () => {
               <li><Link to="/find-ride" className="hover:text-emerald-400 transition-colors">Find a Campus Ride</Link></li>
               <li><Link to="/offer-ride" className="hover:text-emerald-400 transition-colors">Offer Empty Car Seats</Link></li>
               <li><Link to="/wallet" className="hover:text-emerald-400 transition-colors">Campus Wallet & VIP Pass</Link></li>
-              <li><Link to="/timetable" className="hover:text-emerald-400 transition-colors">Timetable Commute Sync</Link></li>
               <li><Link to="/commute-groups" className="hover:text-emerald-400 transition-colors">Daily Commute Cohorts</Link></li>
               <li><Link to="/environmental-impact" className="hover:text-emerald-400 transition-colors">Campus CO₂ Impact</Link></li>
             </ul>

@@ -71,15 +71,6 @@ const Navbar = () => {
               Offer Ride
             </Link>
 
-            <Link
-              to="/timetable"
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                isActive('/timetable') ? 'text-emerald-400 bg-slate-900' : 'text-slate-300 hover:text-white hover:bg-slate-900/50'
-              }`}
-            >
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              Timetable
-            </Link>
 
             <Link
               to="/commute-groups"
@@ -232,9 +223,6 @@ const Navbar = () => {
           </Link>
           <Link to="/offer-ride" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-emerald-400">
             + Offer a Ride
-          </Link>
-          <Link to="/timetable" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-200">
-            Timetable Matching
           </Link>
           <Link to="/commute-groups" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-200">
             Commute Groups

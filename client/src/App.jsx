@@ -18,7 +18,6 @@ import StudentVerificationPage from './pages/StudentVerificationPage';
 import DriverVerificationPage from './pages/DriverVerificationPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
 import ProfilePage from './pages/ProfilePage';
-import TimetablePage from './pages/TimetablePage';
 import CommuteGroupsPage from './pages/CommuteGroupsPage';
 import EnvironmentalImpactPage from './pages/EnvironmentalImpactPage';
 import SafetyCenterPage from './pages/SafetyCenterPage';
@@ -48,7 +47,6 @@ function App() {
             <Route path="/verify-driver" element={<DriverVerificationPage />} />
             <Route path="/vehicles" element={<VehicleManagementPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/timetable" element={<TimetablePage />} />
             <Route path="/commute-groups" element={<CommuteGroupsPage />} />
             <Route path="/environmental-impact" element={<EnvironmentalImpactPage />} />
             <Route path="/safety" element={<SafetyCenterPage />} />
