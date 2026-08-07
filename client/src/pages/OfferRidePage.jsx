@@ -4,6 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
+import LocationAutocompleteInput from '../components/common/LocationAutocompleteInput';
 import { PlusCircle, MapPin, Calendar, Clock, Car, Users, DollarSign, FileText, ShieldAlert, CheckCircle } from 'lucide-react';
 
 const OfferRidePage = () => {
@@ -107,35 +108,23 @@ const OfferRidePage = () => {
             
             {/* Route Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Starting Pickup Hub</label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    value={formData.source}
-                    onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                    placeholder="e.g. Sector 17 Plaza, Chandigarh"
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
-                    required
-                  />
-                </div>
-              </div>
+              <LocationAutocompleteInput
+                label="Starting Pickup Hub"
+                value={formData.source}
+                onChange={(val) => setFormData({ ...formData, source: val })}
+                placeholder="e.g. Sector 17 Plaza, Chandigarh"
+                iconColor="text-emerald-400"
+                required
+              />
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Dropoff Destination</label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-rose-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    value={formData.destination}
-                    onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                    placeholder="e.g. State University Campus Gate 1"
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
-                    required
-                  />
-                </div>
-              </div>
+              <LocationAutocompleteInput
+                label="Dropoff Destination"
+                value={formData.destination}
+                onChange={(val) => setFormData({ ...formData, destination: val })}
+                placeholder="e.g. State University Campus Gate 1"
+                iconColor="text-rose-400"
+                required
+              />
             </div>
 
             {/* Schedule Inputs */}

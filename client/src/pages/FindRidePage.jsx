@@ -4,6 +4,7 @@ import RideCard from '../components/rides/RideCard';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import LocationAutocompleteInput from '../components/common/LocationAutocompleteInput';
 import { Search, Filter, SlidersHorizontal, MapPin, Clock, Calendar, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 const FindRidePage = () => {
@@ -89,33 +90,21 @@ const FindRidePage = () => {
         <div className="glass-card p-6 rounded-3xl border-slate-800 space-y-4">
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
             
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">Starting From</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  placeholder="e.g. Mohali Phase 7"
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
+            <LocationAutocompleteInput
+              label="Starting From"
+              value={source}
+              onChange={setSource}
+              placeholder="e.g. Mohali Phase 7"
+              iconColor="text-emerald-400"
+            />
 
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">Destination Campus</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-rose-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  placeholder="e.g. Campus Gate 2"
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
+            <LocationAutocompleteInput
+              label="Destination Campus"
+              value={destination}
+              onChange={setDestination}
+              placeholder="e.g. Campus Gate 2"
+              iconColor="text-rose-400"
+            />
 
             <div>
               <label className="block font-semibold text-slate-300 mb-1">Date</label>

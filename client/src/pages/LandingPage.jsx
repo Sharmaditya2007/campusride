@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import CampusRouteVisualizer from '../components/common/CampusRouteVisualizer';
 import api from '../services/api';
+import LocationAutocompleteInput from '../components/common/LocationAutocompleteInput';
 import {
   Car,
   ShieldCheck,
@@ -145,33 +146,25 @@ const LandingPage = () => {
                 className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-700/80 shadow-2xl space-y-4 sm:space-y-0 sm:flex sm:items-center sm:gap-3"
               >
                 {/* Pickup Location */}
-                <div className="flex-1 bg-slate-950/60 border border-slate-800 rounded-2xl p-3 flex items-center gap-3 focus-within:border-emerald-500 transition">
-                  <MapPin className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <div className="flex-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pickup Hub / Area</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Sector 17 / Mohali"
-                      value={searchQuery.source}
-                      onChange={(e) => setSearchQuery({ ...searchQuery, source: e.target.value })}
-                      className="bg-transparent text-sm text-white focus:outline-none w-full placeholder-slate-500 font-semibold"
-                    />
-                  </div>
+                <div className="flex-1">
+                  <LocationAutocompleteInput
+                    label="Pickup Hub / Area"
+                    value={searchQuery.source}
+                    onChange={(val) => setSearchQuery({ ...searchQuery, source: val })}
+                    placeholder="e.g. Sector 17 / Mohali"
+                    iconColor="text-emerald-400"
+                  />
                 </div>
 
                 {/* Destination Location */}
-                <div className="flex-1 bg-slate-950/60 border border-slate-800 rounded-2xl p-3 flex items-center gap-3 focus-within:border-emerald-500 transition">
-                  <Compass className="w-5 h-5 text-indigo-400 shrink-0" />
-                  <div className="flex-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Destination Campus</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Main Gate 1 / North Campus"
-                      value={searchQuery.destination}
-                      onChange={(e) => setSearchQuery({ ...searchQuery, destination: e.target.value })}
-                      className="bg-transparent text-sm text-white focus:outline-none w-full placeholder-slate-500 font-semibold"
-                    />
-                  </div>
+                <div className="flex-1">
+                  <LocationAutocompleteInput
+                    label="Destination Campus"
+                    value={searchQuery.destination}
+                    onChange={(val) => setSearchQuery({ ...searchQuery, destination: val })}
+                    placeholder="e.g. Main Gate 1 / Campus"
+                    iconColor="text-indigo-400"
+                  />
                 </div>
 
                 {/* Date */}
