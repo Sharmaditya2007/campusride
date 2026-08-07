@@ -81,7 +81,7 @@ const EmailVerificationPage = () => {
             </div>
             <h2 className="text-2xl font-extrabold text-white">Security & Identity OTP Verification</h2>
             <p className="text-xs text-slate-400">
-              Check your email inbox & mobile phone to enter your 6-digit verification codes.
+              Check your email inbox, Spam/Junk folder & mobile phone to enter your 6-digit verification codes.
             </p>
           </div>
 
@@ -92,7 +92,7 @@ const EmailVerificationPage = () => {
               <div className="space-y-1.5">
                 <label className="block font-semibold text-slate-300 flex items-center gap-1.5">
                   <MailCheck className="w-4 h-4 text-emerald-400" />
-                  University Email OTP (Check your inbox)
+                  University Email OTP (Check inbox & Spam folder)
                 </label>
                 <input
                   type="text"

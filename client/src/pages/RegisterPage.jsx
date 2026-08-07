@@ -54,7 +54,7 @@ const RegisterPage = () => {
       await api.post('/auth/send-email-otp', payload);
       setLoading(false);
 
-      showToast('🔑 6-digit Email OTP sent to your university email address!', 'success');
+      showToast('🔑 6-digit Email OTP sent! Please check your inbox & spam folder.', 'success');
       // Open in-page OTP verification modal seamlessly without redirecting
       setIsModalOpen(true);
     } catch (err) {

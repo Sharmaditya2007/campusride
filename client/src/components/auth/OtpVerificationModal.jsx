@@ -94,7 +94,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData }) => {
         setEmailCooldown(60);
         setEmailAttemptsLeft((prev) => Math.max(0, prev - 1));
         setEmailOtpDigits(['', '', '', '', '', '']);
-        showToast('New 6-digit Email OTP code dispatched to your inbox!', 'info');
+        showToast('New 6-digit Email OTP code dispatched! Please check your inbox & spam folder.', 'info');
       }
     } catch (err) {
       showToast(err.message || 'Failed to resend Email OTP.', 'error');
@@ -146,7 +146,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData }) => {
           </div>
           <h3 className="text-xl font-extrabold text-white">University Email OTP Verification</h3>
           <p className="text-xs text-slate-400">
-            Verify your student email address to complete your account setup.
+            Verify your student email address to complete setup. Check your <strong>Inbox & Spam / Junk folder</strong>.
           </p>
         </div>
 
@@ -168,6 +168,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData }) => {
 
           {!emailVerified ? (
             <form onSubmit={handleVerifyEmail} className="space-y-3">
+              
               {/* 6 Individual OTP Boxes */}
               <div className="flex justify-between gap-1.5 pt-1">
                 {emailOtpDigits.map((digit, idx) => (

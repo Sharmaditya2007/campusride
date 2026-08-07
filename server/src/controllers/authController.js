@@ -839,7 +839,7 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
       emailOtp,
     });
 
-    return successResponse(res, 200, 'University Email OTP sent successfully!', {
+    return successResponse(res, 200, 'University Email OTP sent successfully! Please check your inbox & spam folder.', {
       email: cleanEmail,
     });
   } catch (error) {
