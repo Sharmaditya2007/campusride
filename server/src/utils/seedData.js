@@ -1,3 +1,8 @@
+const dns = require('dns');
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {}
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -26,6 +31,7 @@ const seedData = async () => {
     const admin = await User.create({
       fullName: 'Campus Safety Admin',
       email: 'admin@campusride.edu',
+      phone: '+91 99999 00000',
       passwordHash: 'admin123',
       university: 'State Tech University',
       studentId: 'ADM-001',
@@ -38,6 +44,7 @@ const seedData = async () => {
     const student1 = await User.create({
       fullName: 'Aman Sharma',
       email: 'aditya@student.edu',
+      phone: '+91 98765 12345',
       passwordHash: 'student123',
       university: 'State Tech University',
       studentId: 'STU-2026-99',
@@ -60,6 +67,7 @@ const seedData = async () => {
     const student2 = await User.create({
       fullName: 'Priya Verma',
       email: 'priya@cu.edu',
+      phone: '+91 98765 67890',
       passwordHash: 'student123',
       university: 'Chandigarh University',
       studentId: 'CU-2025-44',
