@@ -6,7 +6,7 @@ import QuickBoardingModal from '../components/rides/QuickBoardingModal';
 import MatchScoreBadge from '../components/rides/MatchScoreBadge';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-import api from '../services/api';
+import UserAvatar from '../components/common/UserAvatar';
 import { MapPin, Clock, ShieldCheck, Star, Users, Car, AlertTriangle, Send, QrCode, ArrowLeft, Share2 } from 'lucide-react';
 
 const RideDetailPage = () => {
@@ -226,10 +226,9 @@ const RideDetailPage = () => {
             {/* Driver Profile */}
             <div className="glass-card p-6 rounded-3xl border-slate-800 space-y-4">
               <div className="text-center space-y-2">
-                <img
-                  src={driver.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
-                  alt={driver.fullName}
-                  className="w-20 h-20 rounded-2xl object-cover ring-4 ring-emerald-500/30 mx-auto"
+                <UserAvatar
+                  user={driver}
+                  className="w-20 h-20 rounded-2xl ring-4 ring-emerald-500/30 mx-auto text-xl"
                 />
                 <div>
                   <h3 className="font-extrabold text-white text-base flex items-center justify-center gap-1.5">

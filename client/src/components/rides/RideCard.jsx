@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MatchScoreBadge from './MatchScoreBadge';
+import UserAvatar from '../common/UserAvatar';
 import { ShieldCheck, MapPin, Clock, Users, Car, ChevronRight, Star } from 'lucide-react';
 
 const RideCard = ({ ride, onRequest }) => {
@@ -13,10 +14,9 @@ const RideCard = ({ ride, onRequest }) => {
       {/* Top Bar: Driver & Match Score */}
       <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-3">
-          <img
-            src={driver.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
-            alt={driver.fullName || 'Driver'}
-            className="w-11 h-11 rounded-xl object-cover ring-2 ring-emerald-500/30"
+          <UserAvatar
+            user={driver}
+            className="w-11 h-11 rounded-xl ring-2 ring-emerald-500/30 text-sm"
           />
           <div>
             <div className="flex items-center gap-1.5">

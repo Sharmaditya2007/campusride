@@ -4,6 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
+import UserAvatar from '../components/common/UserAvatar';
 import { User, ShieldCheck, Star, Award, Phone, MapPin, Plus, Car, Calendar, Edit3 } from 'lucide-react';
 
 const ProfilePage = () => {
@@ -33,10 +34,9 @@ const ProfilePage = () => {
         
         {/* Profile Card Header */}
         <div className="glass-card p-8 rounded-3xl border-slate-800 flex flex-col md:flex-row items-center md:items-start gap-6">
-          <img
-            src={user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
-            alt={user?.fullName}
-            className="w-24 h-24 rounded-3xl object-cover ring-4 ring-emerald-500/30 shrink-0"
+          <UserAvatar
+            user={user}
+            className="w-24 h-24 rounded-3xl ring-4 ring-emerald-500/30 shrink-0 text-2xl"
           />
 
           <div className="flex-1 text-center md:text-left space-y-2">

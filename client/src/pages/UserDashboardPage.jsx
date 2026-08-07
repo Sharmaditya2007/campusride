@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import UserAvatar from '../components/common/UserAvatar';
 import {
   Car,
   Search,
@@ -85,10 +86,9 @@ const UserDashboardPage = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <img
-                  src={user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
-                  alt={user?.fullName}
-                  className="w-16 h-16 rounded-2xl object-cover ring-2 ring-emerald-500/40 shadow-lg"
+                <UserAvatar
+                  user={user}
+                  className="w-16 h-16 rounded-2xl ring-2 ring-emerald-500/40 shadow-lg text-lg"
                 />
                 <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shadow">
                   <ShieldCheck className="w-3.5 h-3.5 fill-slate-950" />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
+import UserAvatar from './UserAvatar';
 import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet, ShieldAlert } from 'lucide-react';
 import LiveSOSTrackerModal from './LiveSOSTrackerModal';
 
@@ -167,10 +168,9 @@ const Navbar = () => {
                     to="/profile"
                     className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all"
                   >
-                    <img
-                      src={user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
-                      alt={user?.fullName}
-                      className="w-8 h-8 rounded-lg object-cover ring-2 ring-emerald-500/40"
+                    <UserAvatar
+                      user={user}
+                      className="w-8 h-8 rounded-lg ring-2 ring-emerald-500/40"
                     />
                     <div className="flex flex-col text-left leading-tight">
                       <span className="text-xs font-semibold text-slate-100 flex items-center gap-1">
