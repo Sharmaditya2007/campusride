@@ -10,6 +10,8 @@ const { sendOtpSms } = require('../services/smsService');
 const { sendWhatsAppOtp } = require('../services/whatsappService');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -40,6 +42,10 @@ const register = async (req, res, next) => {
 
     if (!fullName || !email || !phone || !password || !university || !studentId) {
       return errorResponse(res, 400, 'Please fill in all required fields including Full Name, Mobile Phone, Email, and Student ID');
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+      return errorResponse(res, 400, 'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character (!@#$%^&*)');
     }
 
     let userExists = false;
@@ -449,8 +455,8 @@ const initiateSignup = async (req, res, next) => {
       return errorResponse(res, 400, 'Please fill in all required fields including Full Name, Mobile Phone, Email, University, and Student ID');
     }
 
-    if (password.length < 6) {
-      return errorResponse(res, 400, 'Password must be at least 6 characters long');
+    if (!PASSWORD_REGEX.test(password)) {
+      return errorResponse(res, 400, 'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character (!@#$%^&*)');
     }
 
     const cleanEmail = email.trim().toLowerCase();

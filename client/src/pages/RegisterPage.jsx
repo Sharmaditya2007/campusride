@@ -25,11 +25,26 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+  const passwordChecks = {
+    length: formData.password.length >= 8,
+    uppercase: /[A-Z]/.test(formData.password),
+    lowercase: /[a-z]/.test(formData.password),
+    number: /\d/.test(formData.password),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password),
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
       showToast('Passwords do not match!', 'error');
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(formData.password)) {
+      showToast('Password must be at least 8 characters with upper (A-Z), lower (a-z), number (0-9) & special symbol (!@#$%^&*)', 'error');
       return;
     }
 
@@ -175,6 +190,7 @@ const RegisterPage = () => {
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Min 8 chars (A-z, 0-9, !@#$)"
                     className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />
@@ -189,12 +205,37 @@ const RegisterPage = () => {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    placeholder="Re-enter password"
                     className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />
                 </div>
               </div>
             </div>
+
+            {/* Live Password Strength Requirements Checklist */}
+            {formData.password && (
+              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-1.5 text-xs transition-all">
+                <div className="font-bold text-slate-300 text-[11px] mb-1">Password Security Policy Requirements:</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px]">
+                  <span className={passwordChecks.length ? "text-emerald-400 font-bold flex items-center gap-1" : "text-slate-500 flex items-center gap-1"}>
+                    {passwordChecks.length ? "✓" : "○"} 8+ Characters
+                  </span>
+                  <span className={passwordChecks.uppercase ? "text-emerald-400 font-bold flex items-center gap-1" : "text-slate-500 flex items-center gap-1"}>
+                    {passwordChecks.uppercase ? "✓" : "○"} 1 Uppercase (A-Z)
+                  </span>
+                  <span className={passwordChecks.lowercase ? "text-emerald-400 font-bold flex items-center gap-1" : "text-slate-500 flex items-center gap-1"}>
+                    {passwordChecks.lowercase ? "✓" : "○"} 1 Lowercase (a-z)
+                  </span>
+                  <span className={passwordChecks.number ? "text-emerald-400 font-bold flex items-center gap-1" : "text-slate-500 flex items-center gap-1"}>
+                    {passwordChecks.number ? "✓" : "○"} 1 Number (0-9)
+                  </span>
+                  <span className={passwordChecks.special ? "text-emerald-400 font-bold flex items-center gap-1" : "text-slate-500 flex items-center gap-1"}>
+                    {passwordChecks.special ? "✓" : "○"} 1 Symbol (!@#$%^&*)
+                  </span>
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"
