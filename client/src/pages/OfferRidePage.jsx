@@ -159,7 +159,7 @@ const OfferRidePage = () => {
             </div>
 
             {/* Capacity & Price */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Available Seats</label>
                 <div className="relative">
@@ -188,28 +188,6 @@ const OfferRidePage = () => {
                     className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Select Vehicle</label>
-                <div className="relative">
-                  <Car className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
-                  <select
-                    value={formData.vehicleId}
-                    onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
-                  >
-                    {vehicles.length > 0 ? (
-                      vehicles.map((v) => (
-                        <option key={v._id} value={v._id}>
-                          {v.model} ({v.registrationNumber})
-                        </option>
-                      ))
-                    ) : (
-                      <option value="">Honda City (CH-01-AB-4890)</option>
-                    )}
-                  </select>
                 </div>
               </div>
             </div>

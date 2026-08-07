@@ -10,7 +10,7 @@ const rideSchema = new mongoose.Schema(
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Vehicle',
-      required: true,
+      required: false,
     },
     source: {
       type: String,
