@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, CheckCircle2, ExternalLink, Compass } from 'lucide-react';
+import { MapPin, CheckCircle2, ExternalLink, Compass, Navigation, Loader2 } from 'lucide-react';
 
 const POPULAR_LOCATIONS = [
   'Mohali Phase 7 (Near Metro Gate), Mohali',
@@ -43,10 +43,11 @@ export default function LocationAutocompleteInput({
   label,
   iconColor = "text-emerald-400",
   required = false,
+  showMyLocationOption = true,
 }) {
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState(POPULAR_LOCATIONS.slice(0, 6));
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const [detectingGps, setDetectingGps] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close dropdown on click outside
@@ -54,7 +55,6 @@ export default function LocationAutocompleteInput({
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
-        setIsFocused(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -66,8 +66,8 @@ export default function LocationAutocompleteInput({
     onChange(val);
 
     if (!val || val.trim().length < 1) {
-      setSuggestions([]);
-      setShowDropdown(false);
+      setSuggestions(POPULAR_LOCATIONS.slice(0, 6));
+      setShowDropdown(true);
       return;
     }
 
@@ -81,7 +81,7 @@ export default function LocationAutocompleteInput({
     setSuggestions(localMatches);
     setShowDropdown(true);
 
-    // Also fetch online OSM API asynchronously if query length > 2
+    // Also fetch online OSM API asynchronously if query length >= 2
     if (val.trim().length >= 2) {
       fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(val)}&limit=4`)
         .then((res) => res.json())
@@ -92,7 +92,6 @@ export default function LocationAutocompleteInput({
               return [p.name, p.district || p.city, p.state].filter(Boolean).join(', ');
             }).filter(Boolean);
 
-            // Merge local and online unique suggestions
             const merged = Array.from(new Set([...localMatches, ...apiMatches])).slice(0, 6);
             setSuggestions(merged);
           }
@@ -106,13 +105,70 @@ export default function LocationAutocompleteInput({
     setShowDropdown(false);
   };
 
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setDetectingGps(true);
+    setShowDropdown(false);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await res.json();
+          if (data && data.display_name) {
+            const parts = data.display_name.split(',');
+            const shortLoc = parts.slice(0, 3).join(', ');
+            onChange(shortLoc);
+          } else {
+            onChange(`GPS Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`);
+          }
+        } catch (err) {
+          onChange(`GPS Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`);
+        } finally {
+          setDetectingGps(false);
+        }
+      },
+      (error) => {
+        console.warn('Geolocation error:', error.message);
+        setDetectingGps(false);
+        alert('Could not detect GPS position. Please allow location permissions in your browser.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const hasValue = Boolean(value && value.trim().length >= 2);
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(value || '')}`;
 
   return (
     <div className="relative space-y-1" ref={dropdownRef}>
       {label && (
-        <label className="block font-semibold text-slate-300 text-xs mb-1">{label}</label>
+        <div className="flex items-center justify-between">
+          <label className="block font-semibold text-slate-300 text-xs mb-1">{label}</label>
+          {showMyLocationOption && (
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={detectingGps}
+              title="Detect current location via browser GPS"
+              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-extrabold flex items-center gap-1 bg-emerald-950/50 hover:bg-emerald-900/60 px-2 py-0.5 rounded-lg border border-emerald-500/30 transition-all mb-1 shadow-sm"
+            >
+              {detectingGps ? (
+                <Loader2 className="w-3 h-3 text-emerald-400 animate-spin" />
+              ) : (
+                <Navigation className="w-3 h-3 text-emerald-400" />
+              )}
+              <span>{detectingGps ? 'Locating...' : 'Use My Location'}</span>
+            </button>
+          )}
+        </div>
       )}
 
       <div className="relative">
@@ -123,10 +179,7 @@ export default function LocationAutocompleteInput({
           value={value}
           onChange={handleInputChange}
           onFocus={() => {
-            setIsFocused(true);
-            if (value && value.trim().length >= 1) {
-              handleInputChange({ target: { value } });
-            }
+            setShowDropdown(true);
           }}
           placeholder={placeholder}
           required={required}
@@ -150,13 +203,34 @@ export default function LocationAutocompleteInput({
         )}
       </div>
 
-      {/* Instant Suggestions Dropdown */}
-      {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-50 left-0 right-0 mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden max-h-52 overflow-y-auto">
-          <div className="px-3 py-1.5 bg-slate-950/80 border-b border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-            <span>Verified Campus & Map Hubs</span>
+      {/* Autocomplete Suggestions Dropdown */}
+      {showDropdown && (
+        <div className="absolute z-50 left-0 right-0 mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+          {/* Use My Current Location Option */}
+          {showMyLocationOption && (
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={detectingGps}
+              className="w-full text-left px-3 py-2.5 bg-emerald-950/60 hover:bg-emerald-900/80 border-b border-slate-800 flex items-center justify-between text-xs text-emerald-300 font-bold transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                {detectingGps ? (
+                  <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+                ) : (
+                  <Navigation className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
+                )}
+                <span>{detectingGps ? 'Detecting your GPS location...' : '📍 Use My Current Location'}</span>
+              </div>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">GPS</span>
+            </button>
+          )}
+
+          <div className="px-3 py-1 bg-slate-950/80 border-b border-slate-800 text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Verified Campus & City Hubs</span>
             <span className="text-emerald-400">Google Maps Aware</span>
           </div>
+
           {suggestions.map((locName, idx) => (
             <button
               key={idx}
