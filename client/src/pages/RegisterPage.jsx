@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { useNotifications } from '../context/NotificationContext';
@@ -11,16 +11,49 @@ const RegisterPage = () => {
   const { showToast } = useNotifications();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    university: '',
-    customUniversity: '',
-    studentId: '',
+  const [formData, setFormData] = useState(() => {
+    try {
+      const savedDraft = localStorage.getItem('campusride_signup_draft');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        return {
+          fullName: parsed.fullName || '',
+          email: parsed.email || '',
+          phone: parsed.phone || '',
+          password: '',
+          confirmPassword: '',
+          university: parsed.university || '',
+          customUniversity: parsed.customUniversity || '',
+          studentId: parsed.studentId || '',
+        };
+      }
+    } catch (e) {}
+    return {
+      fullName: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+      university: '',
+      customUniversity: '',
+      studentId: '',
+    };
   });
+
+  // Sync non-sensitive form draft to localStorage
+  useEffect(() => {
+    try {
+      const draftToSave = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        university: formData.university,
+        customUniversity: formData.customUniversity,
+        studentId: formData.studentId,
+      };
+      localStorage.setItem('campusride_signup_draft', JSON.stringify(draftToSave));
+    } catch (e) {}
+  }, [formData.fullName, formData.email, formData.phone, formData.university, formData.customUniversity, formData.studentId]);
 
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

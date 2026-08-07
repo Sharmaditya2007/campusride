@@ -24,7 +24,7 @@ const PaymentModal = ({ isOpen, onClose, rideRequest, onPaymentSuccess }) => {
     setSuccessMsg('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('campusride_token');
       const res = await axios.post(
         `${API_BASE_URL}/payments/pay-wallet`,
         { rideRequestId: rideRequest._id },
@@ -50,7 +50,7 @@ const PaymentModal = ({ isOpen, onClose, rideRequest, onPaymentSuccess }) => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('campusride_token');
       // Step 1: Create Order
       const orderRes = await axios.post(
         `${API_BASE_URL}/payments/create-order`,
