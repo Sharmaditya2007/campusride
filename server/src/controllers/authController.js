@@ -140,7 +140,7 @@ const verifyOtps = async (req, res, next) => {
     }
 
     const inputOtp = (emailOtp || phoneOtp || '').trim();
-    const isEmailOtpValid = user.emailOtp === inputOtp || user.phoneOtp === inputOtp || inputOtp === '123456';
+    const isEmailOtpValid = user.emailOtp === inputOtp || user.phoneOtp === inputOtp;
 
     if (!isEmailOtpValid) {
       return errorResponse(res, 400, 'Invalid 6-digit OTP code. Please check your Email/WhatsApp.');
@@ -545,7 +545,7 @@ const verifyEmailOtp = async (req, res, next) => {
     }
 
     const cleanOtp = otp.trim();
-    if (pending.emailOtp !== cleanOtp && cleanOtp !== '123456') {
+    if (pending.emailOtp !== cleanOtp) {
       return errorResponse(res, 400, 'Invalid 6-digit Email OTP code.');
     }
 
@@ -591,7 +591,7 @@ const verifyWhatsappOtp = async (req, res, next) => {
     }
 
     const cleanOtp = otp.trim();
-    if (pending.whatsappOtp !== cleanOtp && cleanOtp !== '123456') {
+    if (pending.whatsappOtp !== cleanOtp) {
       return errorResponse(res, 400, 'Invalid 6-digit WhatsApp OTP code.');
     }
 
