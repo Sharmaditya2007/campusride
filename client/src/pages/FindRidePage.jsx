@@ -15,8 +15,7 @@ const FindRidePage = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState('08:00');
   const [seats, setSeats] = useState(1);
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [maxPrice, setMaxPrice] = useState(200);
+  const [maxPrice, setMaxPrice] = useState('');
 
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,8 +30,7 @@ const FindRidePage = () => {
         date,
         time,
         seats,
-        maxPrice,
-        verifiedOnly: verifiedOnly ? 'true' : 'false',
+        maxPrice: maxPrice || '',
       });
       const res = await api.get(`/rides/search?${params.toString()}`);
       if (res.success) {
@@ -157,31 +155,21 @@ const FindRidePage = () => {
 
           </form>
 
-          {/* Filters Pill Bar */}
+          {/* Filter Bar */}
           <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={verifiedOnly}
-                  onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="accent-emerald-500 w-4 h-4 rounded"
-                />
-                <ShieldCheck className="w-4 h-4 text-emerald-400 inline" />
-                <span>Verified Drivers Only</span>
+            <div className="flex items-center gap-3">
+              <label className="font-semibold text-slate-300 flex items-center gap-1.5">
+                Max Contribution (₹):
               </label>
-
-              <div className="flex items-center gap-2 text-slate-300">
-                <span>Max Contribution: ₹{maxPrice}</span>
-                <input
-                  type="range"
-                  min="20"
-                  max="300"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="accent-emerald-500"
-                />
-              </div>
+              <input
+                type="number"
+                min="0"
+                max="5000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                placeholder="e.g. 300"
+                className="w-28 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 font-semibold"
+              />
             </div>
 
             <span className="text-slate-400 font-medium">
