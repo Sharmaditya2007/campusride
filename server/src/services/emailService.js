@@ -50,6 +50,36 @@ const sendOtpEmail = async ({ toEmail, recipientName, emailOtp }) => {
       </div>
     `;
 
+    // 0. Primary HTTP Method: Brevo REST API (Over HTTPS Port 443 - Works on Render without domain ownership)
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (brevoApiKey) {
+      try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'api-key': brevoApiKey,
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          },
+          body: JSON.stringify({
+            sender: { name: 'CollegeRide Security', email: process.env.SMTP_USER || 'campusride2026@gmail.com' },
+            to: [{ email: toEmail, name: recipientName || 'Student' }],
+            subject: `🔑 ${emailOtp} is your CollegeRide Email Verification Code`,
+            htmlContent: htmlContent,
+          }),
+        });
+
+        const brevoData = await response.json();
+        if (response.ok) {
+          console.log(`[Email Service Success] OTP delivered to ${toEmail} via Brevo API (${brevoData.messageId || 'sent'})`);
+          return { success: true, provider: 'brevo', messageId: brevoData.messageId };
+        }
+        console.warn('[Brevo API Warning] Response not OK:', brevoData.message || brevoData);
+      } catch (brevoErr) {
+        console.warn('[Brevo API Exception]:', brevoErr.message);
+      }
+    }
+
     // 1. Primary Method: Gmail / Standard SMTP (Guarantees delivery to ANY email address)
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
       try {
