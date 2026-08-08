@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -26,13 +26,6 @@ import WalletPage from './pages/WalletPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
-  useEffect(() => {
-    const savedMode = localStorage.getItem('campusride_theme_mode');
-    if (savedMode === 'light') {
-      document.documentElement.classList.add('light');
-    }
-  }, []);
-
   return (
     <Router>
       <AuthProvider>

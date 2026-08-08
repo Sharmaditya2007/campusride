@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from './UserAvatar';
-import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logoutUser } = useAuth();
@@ -18,22 +18,6 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
-
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem('campusride_theme_mode') !== 'light';
-  });
-
-  const toggleThemeMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('light');
-      localStorage.setItem('campusride_theme_mode', 'light');
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.remove('light');
-      localStorage.setItem('campusride_theme_mode', 'dark');
-      setIsDarkMode(true);
-    }
-  };
 
   return (
     <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60">
@@ -193,37 +177,12 @@ const Navbar = () => {
                 >
                   Verify & Join
                 </Link>
-                {/* Dark/Light Mode Toggle */}
-                <button
-                  onClick={toggleThemeMode}
-                  className="p-2 rounded-xl text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 text-xs font-semibold"
-                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                >
-                  {isDarkMode ? (
-                    <>
-                      <Sun className="w-4 h-4 text-amber-400" />
-                      <span className="hidden xl:inline">Light</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-4 h-4 text-indigo-400" />
-                      <span className="hidden xl:inline">Dark</span>
-                    </>
-                  )}
-                </button>
               </div>
             )}
           </div>
 
-          {/* Mobile Theme Toggle & Menu Button */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <button
-              onClick={toggleThemeMode}
-              className="p-2 rounded-lg text-slate-300 bg-slate-900 border border-slate-800"
-              title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
-            >
-              {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
-            </button>
+          {/* Mobile Menu Button */}
+          <div className="flex items-center lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900"
