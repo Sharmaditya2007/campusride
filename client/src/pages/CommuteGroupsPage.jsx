@@ -219,7 +219,7 @@ const CommuteGroupsPage = () => {
 
         {/* Create Group Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[1000] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
             <div className="glass-panel max-w-md w-full p-6 rounded-3xl border-slate-800 shadow-2xl space-y-5 animate-fade-in relative">
               <div className="flex justify-between items-center pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2">
