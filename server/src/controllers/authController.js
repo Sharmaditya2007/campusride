@@ -880,8 +880,24 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
       emailOtp,
     });
 
-    return successResponse(res, 200, 'University Email OTP sent successfully! Please check your inbox & spam folder.', {
+    let waResult = { whatsAppUrl: '' };
+    if (cleanPhone && cleanPhone !== 'PendingPhone') {
+      waResult = await sendWhatsAppOtp({
+        toPhone: cleanPhone,
+        phoneOtp: whatsappOtp,
+      });
+      await sendOtpSms({
+        toPhone: cleanPhone,
+        phoneOtp: whatsappOtp,
+      });
+    }
+
+    return successResponse(res, 200, 'Verification OTPs dispatched to your WhatsApp & Email! Please check your inbox and WhatsApp.', {
       email: cleanEmail,
+      phone: cleanPhone,
+      whatsAppUrl: waResult ? waResult.whatsAppUrl : '',
+      emailOtp,
+      whatsappOtp,
     });
   } catch (error) {
     next(error);

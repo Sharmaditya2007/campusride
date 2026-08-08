@@ -57,6 +57,7 @@ const RegisterPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [otpMeta, setOtpMeta] = useState(null);
 
   const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
@@ -125,11 +126,15 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      // Send Email OTP
-      await api.post('/auth/send-email-otp', payload);
+      // Send Email & WhatsApp OTPs
+      const res = await api.post('/auth/send-email-otp', payload);
       setLoading(false);
 
-      showToast('🔑 6-digit Email OTP sent! Please check your inbox & spam folder.', 'success');
+      if (res.data) {
+        setOtpMeta(res.data);
+      }
+
+      showToast('💬 6-digit OTPs dispatched to your WhatsApp & Email! Please check both.', 'success');
       // Open in-page OTP verification modal seamlessly without redirecting
       setIsModalOpen(true);
     } catch (err) {
@@ -330,6 +335,7 @@ const RegisterPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         formData={formData}
+        otpMeta={otpMeta}
       />
     </MainLayout>
   );
