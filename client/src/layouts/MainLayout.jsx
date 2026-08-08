@@ -1,14 +1,12 @@
 import React from 'react';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
-import CursorTrailEffect from '../components/common/CursorTrailEffect';
 import LiveActivityTicker from '../components/common/LiveActivityTicker';
 import ThemeGlowSwitcher from '../components/common/ThemeGlowSwitcher';
 
 const MainLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-[#030712] text-slate-100 font-sans relative selection:bg-emerald-500 selection:text-white">
-      <CursorTrailEffect />
       <LiveActivityTicker />
       <ThemeGlowSwitcher />
       <Navbar />
