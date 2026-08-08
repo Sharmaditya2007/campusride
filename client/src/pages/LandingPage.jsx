@@ -23,7 +23,6 @@ import {
   TrendingUp,
   Shield,
   Star,
-  Calculator,
   Compass,
 } from 'lucide-react';
 
@@ -45,9 +44,6 @@ const LandingPage = () => {
     destination: '',
     date: new Date().toISOString().split('T')[0],
   });
-
-  // Interactive Commute Savings Calculator State
-  const [dailyKm, setDailyKm] = useState(18);
 
   const [featuredRides, setFeaturedRides] = useState([]);
 
@@ -76,9 +72,6 @@ const LandingPage = () => {
     e.preventDefault();
     navigate(`/find-ride?source=${encodeURIComponent(searchQuery.source)}&destination=${encodeURIComponent(searchQuery.destination)}&date=${searchQuery.date}`);
   };
-
-  const calculatedMonthlySavings = Math.round(dailyKm * 22 * 6.5); // Approx ₹6.5 saved per km shared
-  const calculatedCo2Saved = (dailyKm * 22 * 0.12).toFixed(1); // 120g CO2 per km
 
   const faqs = [
     {
@@ -219,71 +212,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* 2. INTERACTIVE COMMUTE SAVINGS CALCULATOR */}
-        <section className="py-16 border-t border-slate-900/80">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="glass-panel p-8 sm:p-12 rounded-3xl border-slate-800 bg-gradient-to-br from-slate-900/90 via-slate-950 to-indigo-950/30 relative overflow-hidden shadow-2xl">
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-                <div className="space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">
-                    <Calculator className="w-4 h-4" /> Interactive Student Cost Calculator
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-                    See How Much You Save Every Month
-                  </h2>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    Compare the cost of solo autos/cabs versus sharing a seat with a verified college peer on CampusRide.
-                  </p>
-
-                  {/* Range Slider */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex justify-between text-xs font-bold text-slate-300">
-                      <span>Daily Round-Trip Distance</span>
-                      <span className="text-indigo-400 text-sm font-extrabold">{dailyKm} km / day</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="5"
-                      max="60"
-                      value={dailyKm}
-                      onChange={(e) => setDailyKm(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                    />
-                    <div className="flex justify-between text-[10px] text-slate-500 font-semibold">
-                      <span>5 km (Local Dorm)</span>
-                      <span>30 km (Suburbs)</span>
-                      <span>60 km (Intercity)</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Savings Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-950/80 border border-emerald-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Monthly Cash Saved</span>
-                    <div className="text-4xl font-black text-emerald-400 mt-2">
-                      ₹{calculatedMonthlySavings.toLocaleString()}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-2">
-                      Saved in pocket every month (22 college days).
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-950/80 border border-teal-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">CO₂ Reduced</span>
-                    <div className="text-4xl font-black text-teal-400 mt-2">
-                      {calculatedCo2Saved} kg
-                    </div>
-                    <p className="text-xs text-slate-400 mt-2">
-                      Lower carbon emissions generated for your campus.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
         </section>
 
         {/* INTERACTIVE ROUTE & HUB VISUALIZER */}
