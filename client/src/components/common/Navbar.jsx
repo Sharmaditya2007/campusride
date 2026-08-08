@@ -3,14 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from './UserAvatar';
-import LiveSOSTrackerModal from '../safety/LiveSOSTrackerModal';
-import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet, ShieldAlert } from 'lucide-react';
+import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet } from 'lucide-react';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logoutUser } = useAuth();
   const { unreadCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sosModalOpen, setSosModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -107,16 +105,6 @@ const Navbar = () => {
             <div className="hidden lg:flex items-center gap-3">
               {isAuthenticated ? (
                 <>
-                  {/* Emergency SOS Quick Button */}
-                  <button
-                    onClick={() => setSosModalOpen(true)}
-                    className="px-2.5 py-1.5 rounded-lg text-xs font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 flex items-center gap-1 transition-all"
-                    title="1-Tap SOS Emergency Signal"
-                  >
-                    <ShieldAlert className="w-4 h-4 animate-pulse" />
-                    SOS
-                  </button>
-
                   {/* Notifications Bell */}
                 <Link
                   to="/notifications"
@@ -263,8 +251,6 @@ const Navbar = () => {
           )}
         </div>
       )}
-
-      <LiveSOSTrackerModal isOpen={sosModalOpen} onClose={() => setSosModalOpen(false)} />
     </nav>
   );
 };
