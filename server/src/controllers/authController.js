@@ -685,6 +685,7 @@ const resendEmailOtp = async (req, res, next) => {
     });
 
     return successResponse(res, 200, 'New 6-digit Email OTP code dispatched to your inbox!', {
+      emailOtp: newOtp,
       resendsLeft: 3 - pending.emailResendCount,
     });
   } catch (error) {
@@ -732,6 +733,7 @@ const resendWhatsappOtp = async (req, res, next) => {
 
     return successResponse(res, 200, 'New 6-digit WhatsApp OTP code dispatched!', {
       whatsAppUrl: waResult.whatsAppUrl,
+      whatsappOtp: newOtp,
       resendsLeft: 3 - pending.whatsappResendCount,
     });
   } catch (error) {
@@ -854,6 +856,9 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
       pending.emailOtp = emailOtp;
       pending.emailOtpExpiresAt = otpExpiry;
       pending.emailVerified = false;
+      pending.whatsappOtp = whatsappOtp;
+      pending.whatsappOtpExpiresAt = otpExpiry;
+      pending.whatsappVerified = false;
       await pending.save();
     } else {
       pending = await PendingSignup.create({

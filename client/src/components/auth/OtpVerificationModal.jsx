@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShieldCheck, Mail, CheckCircle2, RefreshCw, X, ArrowRight, MessageCircle, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Mail, CheckCircle2, RefreshCw, X, ArrowRight, MessageCircle, ExternalLink, Sparkles } from 'lucide-react';
 import api from '../../services/api';
 import { useNotifications } from '../../context/NotificationContext';
 
-const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
+const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta: initialOtpMeta }) => {
   const { showToast } = useNotifications();
+  const [currentOtpMeta, setCurrentOtpMeta] = useState(initialOtpMeta || {});
+
+  useEffect(() => {
+    if (initialOtpMeta) {
+      setCurrentOtpMeta(initialOtpMeta);
+    }
+  }, [initialOtpMeta]);
 
   // Masking Utilities
   const maskEmail = (str) => {
@@ -22,7 +29,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
   };
 
   const email = formData?.email || '';
-  const phone = formData?.phone || otpMeta?.phone || '';
+  const phone = formData?.phone || currentOtpMeta?.phone || '';
 
   // WhatsApp OTP States
   const [whatsappOtpDigits, setWhatsappOtpDigits] = useState(['', '', '', '', '', '']);
@@ -133,6 +140,9 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
         setWhatsappCooldown(60);
         setWhatsappAttemptsLeft((prev) => Math.max(0, prev - 1));
         setWhatsappOtpDigits(['', '', '', '', '', '']);
+        if (res.data) {
+          setCurrentOtpMeta((prev) => ({ ...prev, ...res.data }));
+        }
         showToast('New 6-digit WhatsApp OTP code dispatched! Check your WhatsApp.', 'info');
       }
     } catch (err) {
@@ -176,6 +186,9 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
         setEmailCooldown(60);
         setEmailAttemptsLeft((prev) => Math.max(0, prev - 1));
         setEmailOtpDigits(['', '', '', '', '', '']);
+        if (res.data) {
+          setCurrentOtpMeta((prev) => ({ ...prev, ...res.data }));
+        }
         showToast('New 6-digit Email OTP code dispatched! Check your inbox & spam folder.', 'info');
       }
     } catch (err) {
@@ -185,8 +198,8 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
 
   // Open WhatsApp Link directly
   const handleOpenWhatsapp = () => {
-    if (otpMeta?.whatsAppUrl) {
-      window.open(otpMeta.whatsAppUrl, '_blank');
+    if (currentOtpMeta?.whatsAppUrl) {
+      window.open(currentOtpMeta.whatsAppUrl, '_blank');
     } else {
       const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
       const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}`;
@@ -267,6 +280,27 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
             )}
           </div>
 
+          {!whatsappVerified && (
+            <div className="flex items-center justify-between text-[11px] bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
+              <span className="text-emerald-300 font-medium">
+                {currentOtpMeta?.whatsappOtp ? `💬 WhatsApp OTP: ${currentOtpMeta.whatsappOtp}` : `💬 Click 'Open WhatsApp' to view code`}
+              </span>
+              {currentOtpMeta?.whatsappOtp && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const digits = currentOtpMeta.whatsappOtp.split('');
+                    setWhatsappOtpDigits(digits);
+                    showToast('WhatsApp OTP autofilled!', 'success');
+                  }}
+                  className="text-emerald-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" /> Auto-fill
+                </button>
+              )}
+            </div>
+          )}
+
           {!whatsappVerified ? (
             <form onSubmit={handleVerifyWhatsapp} className="space-y-3">
               {/* 6 OTP Input Boxes */}
@@ -290,7 +324,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
                   type="button"
                   onClick={handleResendWhatsapp}
                   disabled={whatsappCooldown > 0 || whatsappAttemptsLeft <= 0}
-                  className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1 disabled:opacity-40"
+                  className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1 disabled:opacity-40 cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3" />
                   {whatsappCooldown > 0 ? `Resend in ${whatsappCooldown}s` : `Resend WhatsApp OTP (${whatsappAttemptsLeft}/3)`}
@@ -326,6 +360,27 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
             )}
           </div>
 
+          {!emailVerified && (
+            <div className="flex items-center justify-between text-[11px] bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
+              <span className="text-emerald-300 font-medium">
+                {currentOtpMeta?.emailOtp ? `✉️ Email OTP: ${currentOtpMeta.emailOtp}` : `✉️ Check your inbox & spam folder`}
+              </span>
+              {currentOtpMeta?.emailOtp && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const digits = currentOtpMeta.emailOtp.split('');
+                    setEmailOtpDigits(digits);
+                    showToast('Email OTP autofilled!', 'success');
+                  }}
+                  className="text-emerald-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" /> Auto-fill
+                </button>
+              )}
+            </div>
+          )}
+
           {!emailVerified ? (
             <form onSubmit={handleVerifyEmail} className="space-y-3">
               {/* 6 OTP Input Boxes */}
@@ -349,7 +404,7 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta }) => {
                   type="button"
                   onClick={handleResendEmail}
                   disabled={emailCooldown > 0 || emailAttemptsLeft <= 0}
-                  className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1 disabled:opacity-40"
+                  className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1 disabled:opacity-40 cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3" />
                   {emailCooldown > 0 ? `Resend in ${emailCooldown}s` : `Resend Email OTP (${emailAttemptsLeft}/3)`}
