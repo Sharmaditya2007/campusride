@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Car, ShieldCheck, Heart, Leaf, Mail, Phone, Lock, Sparkles } from 'lucide-react';
+import { Car, ShieldCheck, Heart, Leaf, Lock, Sparkles } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-900">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-12 border-b border-slate-900">
           
           {/* Col 1: Brand & Identity */}
           <div className="space-y-4">
@@ -56,24 +56,6 @@ const Footer = () => {
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Community Guidelines</Link></li>
               <li><Link to="/safety" className="hover:text-emerald-400 transition-colors">Trust & Rating Protocol</Link></li>
             </ul>
-          </div>
-
-          {/* Col 4: University Hotline & Pass */}
-          <div className="space-y-4">
-            <h4 className="text-slate-100 font-bold text-xs uppercase tracking-wider">Campus Support</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              University inquiries or student support assistance:
-            </p>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-slate-300">
-                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>support@campusride.edu</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Phone className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>24/7 Campus Helpline Active</span>
-              </div>
-            </div>
           </div>
 
         </div>
