@@ -164,23 +164,11 @@ const MyRidesPage = () => {
                         STATUS: {b.status.toUpperCase()}
                       </span>
 
-                      {/* Payment Badge or Pay Now Trigger */}
-                      {b.status === 'accepted' && (
-                        b.paymentStatus === 'paid' ? (
-                          <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
-                            <ShieldCheck className="w-3.5 h-3.5" /> PAID
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setSelectedReqForPayment(b);
-                              setPaymentModalOpen(true);
-                            }}
-                            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-500 text-white font-bold text-xs shadow-md hover:opacity-90 flex items-center gap-1.5 transition"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" /> Pay Now
-                          </button>
-                        )
+                      {/* Payment Status Badge if Paid */}
+                      {b.status === 'accepted' && b.paymentStatus === 'paid' && (
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5" /> PAID
+                        </span>
                       )}
                     </div>
                   </div>
