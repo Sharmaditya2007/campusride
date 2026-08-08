@@ -12,6 +12,33 @@ const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+const isUniversityEmail = (email) => {
+  if (!email || !email.includes('@')) return false;
+  const clean = email.toLowerCase().trim();
+  const domain = clean.split('@')[1] || '';
+
+  const personalDomains = [
+    'gmail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.ca', 'yahoo.co.uk',
+    'hotmail.com', 'outlook.com', 'live.com', 'msn.com', 'icloud.com',
+    'me.com', 'aol.com', 'protonmail.com', 'proton.me', 'zoho.com',
+    'yandex.com', 'rediffmail.com', 'mail.com', 'gmx.com'
+  ];
+
+  if (personalDomains.includes(domain)) {
+    return false;
+  }
+
+  return (
+    domain.endsWith('.edu') ||
+    domain.endsWith('.ac.in') ||
+    domain.endsWith('.edu.in') ||
+    domain.includes('.edu.') ||
+    domain.includes('.ac.') ||
+    domain.endsWith('.edu.au') ||
+    domain.endsWith('.ac.uk')
+  );
+};
+
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -42,6 +69,10 @@ const register = async (req, res, next) => {
 
     if (!fullName || !email || !phone || !password || !university || !studentId) {
       return errorResponse(res, 400, 'Please fill in all required fields including Full Name, Mobile Phone, Email, and Student ID');
+    }
+
+    if (!isUniversityEmail(email)) {
+      return errorResponse(res, 400, 'Only official university email addresses (e.g. student@college.edu.in or @university.ac.in) are allowed. Personal emails like Gmail or Yahoo are not permitted.');
     }
 
     if (!PASSWORD_REGEX.test(password)) {
@@ -783,6 +814,10 @@ const sendEmailOtpEndpoint = async (req, res, next) => {
 
     if (!email) {
       return errorResponse(res, 400, 'University Email Address is required');
+    }
+
+    if (!isUniversityEmail(email)) {
+      return errorResponse(res, 400, 'Only official university email addresses (e.g. student@college.edu.in or @university.ac.in) are allowed. Personal emails like Gmail or Yahoo are not permitted.');
     }
 
     const cleanEmail = email.trim().toLowerCase();

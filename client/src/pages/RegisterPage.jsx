@@ -68,8 +68,35 @@ const RegisterPage = () => {
     special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password),
   };
 
+  const isUniversityEmail = (email) => {
+    if (!email || !email.includes('@')) return false;
+    const clean = email.toLowerCase().trim();
+    const domain = clean.split('@')[1] || '';
+    const personalDomains = [
+      'gmail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.ca', 'yahoo.co.uk',
+      'hotmail.com', 'outlook.com', 'live.com', 'msn.com', 'icloud.com',
+      'me.com', 'aol.com', 'protonmail.com', 'proton.me', 'zoho.com',
+      'yandex.com', 'rediffmail.com', 'mail.com', 'gmx.com'
+    ];
+    if (personalDomains.includes(domain)) return false;
+    return (
+      domain.endsWith('.edu') ||
+      domain.endsWith('.ac.in') ||
+      domain.endsWith('.edu.in') ||
+      domain.includes('.edu.') ||
+      domain.includes('.ac.') ||
+      domain.endsWith('.edu.au') ||
+      domain.endsWith('.ac.uk')
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isUniversityEmail(formData.email)) {
+      showToast('Please use your official university email (e.g. student@college.edu.in or @university.ac.in). Personal emails like Gmail or Yahoo are not allowed.', 'error');
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       showToast('Passwords do not match!', 'error');
@@ -199,17 +226,21 @@ const RegisterPage = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">University Email Address</label>
+                <label className="block font-semibold text-slate-300 mb-1">University Email Address *</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                  <Mail className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                    placeholder="e.g. student@university.edu.in or @college.ac.in"
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 placeholder:text-slate-600"
                     required
                   />
                 </div>
+                <span className="text-[10px] text-amber-400 mt-1 block font-medium">
+                  ⚠️ Official university email required (@.edu / @.ac.in). Personal emails (Gmail, Yahoo, etc.) are rejected.
+                </span>
               </div>
             </div>
 
