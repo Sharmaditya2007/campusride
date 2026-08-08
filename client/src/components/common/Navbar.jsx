@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from './UserAvatar';
+import LiveSOSTrackerModal from '../safety/LiveSOSTrackerModal';
 import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet, ShieldAlert } from 'lucide-react';
 
 const Navbar = () => {
