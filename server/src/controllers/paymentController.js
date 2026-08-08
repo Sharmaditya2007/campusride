@@ -312,57 +312,9 @@ const payWithWallet = async (req, res, next) => {
  */
 const subscribeVipPass = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-
-    if (user.walletBalance < VIP_PASS_PRICE) {
-      return res.status(400).json({
-        success: false,
-        message: `Insufficient balance to buy VIP Pass (Price: ₹${VIP_PASS_PRICE}, Balance: ₹${user.walletBalance})`,
-      });
-    }
-
-    user.walletBalance -= VIP_PASS_PRICE;
-    user.isVipPass = true;
-
-    // Extend 30 days from now or current expiration
-    const currentExpiry = user.vipPassExpiresAt && new Date(user.vipPassExpiresAt) > new Date()
-      ? new Date(user.vipPassExpiresAt)
-      : new Date();
-    currentExpiry.setDate(currentExpiry.getDate() + 30);
-    user.vipPassExpiresAt = currentExpiry;
-
-    await user.save();
-
-    // Log transaction
-    await Transaction.create({
-      userId,
-      type: 'vip_subscription',
-      amount: VIP_PASS_PRICE,
-      baseFare: 0,
-      platformFee: VIP_PASS_PRICE,
-      paymentGateway: 'campus_wallet',
-      gatewayOrderId: `vip_${Date.now()}`,
-      gatewayPaymentId: `vip_${Date.now()}`,
-      status: 'paid',
-      description: 'CampusRide VIP Pass - 30 Days Zero Booking Fee Membership',
-    });
-
-    await Notification.create({
-      userId,
-      type: 'general',
-      title: '⭐ CampusRide VIP Pass Activated!',
-      message: `Congratulations! You now enjoy 0% platform booking fees until ${user.vipPassExpiresAt.toLocaleDateString()}.`,
-    });
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'CampusRide VIP Pass activated successfully!',
-      data: {
-        isVipPass: true,
-        vipPassExpiresAt: user.vipPassExpiresAt,
-        newWalletBalance: user.walletBalance,
-      },
+      message: '0% platform fee is standard for all users. VIP Pass is no longer required.',
     });
   } catch (error) {
     next(error);
@@ -377,7 +329,7 @@ const subscribeVipPass = async (req, res, next) => {
 const getWalletAndTransactions = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId).select('walletBalance isVipPass vipPassExpiresAt fullName email');
+    const user = await User.findById(userId).select('walletBalance fullName email');
     const transactions = await Transaction.find({ userId })
       .sort({ createdAt: -1 })
       .limit(30);
@@ -386,8 +338,6 @@ const getWalletAndTransactions = async (req, res, next) => {
       success: true,
       data: {
         walletBalance: user.walletBalance,
-        isVipPass: user.isVipPass,
-        vipPassExpiresAt: user.vipPassExpiresAt,
         transactions,
       },
     });

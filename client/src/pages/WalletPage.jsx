@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Crown, ArrowDownLeft, ArrowUpRight, TrendingUp, Sparkles, ShieldCheck, RefreshCw, AlertCircle, CheckCircle2, QrCode, FileText } from 'lucide-react';
+import { Wallet, ArrowDownLeft, ArrowUpRight, TrendingUp, ShieldCheck, RefreshCw, AlertCircle, CheckCircle2, QrCode, FileText } from 'lucide-react';
 import MainLayout from '../layouts/MainLayout';
 import api from '../services/api';
 import UPIPaymentModal from '../components/payment/UPIPaymentModal';
@@ -11,7 +11,6 @@ const WalletPage = () => {
   const [walletData, setWalletData] = useState(null);
   const [adminStats, setAdminStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [vipLoading, setVipLoading] = useState(false);
   
   const [upiModalOpen, setUpiModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState(200);
@@ -46,21 +45,6 @@ const WalletPage = () => {
     fetchWallet();
   }, []);
 
-  const handleSubscribeVip = async () => {
-    try {
-      setVipLoading(true);
-      const res = await api.post('/payments/subscribe-vip');
-      if (res.success) {
-        showToast('⭐ CampusRide VIP Pass activated! 0% booking fees enabled.', 'success');
-        fetchWallet();
-      }
-    } catch (err) {
-      showToast(err.message || 'Failed to activate VIP Pass.', 'error');
-    } finally {
-      setVipLoading(false);
-    }
-  };
-
   const handleTopUpSuccess = (data) => {
     fetchWallet();
   };
@@ -83,7 +67,7 @@ const WalletPage = () => {
     );
   }
 
-  const { walletBalance = 0, isVipPass = false, vipPassExpiresAt, transactions = [] } = walletData || {};
+  const { walletBalance = 0, transactions = [] } = walletData || {};
 
   return (
     <MainLayout>
@@ -106,7 +90,7 @@ const WalletPage = () => {
         </div>
 
         {/* Top Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* Balance Card with UPI QR Top-Up */}
           <div className="glass-card border border-emerald-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between space-y-4">
@@ -127,43 +111,6 @@ const WalletPage = () => {
             >
               <QrCode className="w-4 h-4" /> Top Up via UPI QR
             </button>
-          </div>
-
-          {/* VIP Pass Card */}
-          <div className="glass-card border border-amber-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between space-y-4">
-            <div className="flex items-center justify-between text-amber-400">
-              <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                <Crown className="w-4 h-4 text-amber-400" />
-                Campus VIP Pass
-              </span>
-              <Sparkles className="w-5 h-5" />
-            </div>
-
-            {isVipPass ? (
-              <div>
-                <div className="text-xl font-bold text-amber-300">ACTIVE VIP MEMBER</div>
-                <p className="text-xs text-slate-400 mt-1">
-                  Valid until {new Date(vipPassExpiresAt).toLocaleDateString()}
-                </p>
-                <span className="inline-block mt-3 text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30 font-semibold">
-                  0% Booking Fees Active
-                </span>
-              </div>
-            ) : (
-              <div>
-                <div className="text-2xl font-black text-white">₹199 / month</div>
-                <p className="text-xs text-slate-400 mt-1">
-                  0% platform service fee on all rides for 30 days.
-                </p>
-                <button
-                  onClick={handleSubscribeVip}
-                  disabled={vipLoading}
-                  className="mt-3 w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold text-xs rounded-2xl shadow-lg transition flex items-center justify-center gap-1.5"
-                >
-                  {vipLoading ? 'Activating...' : 'Activate Pass Now'}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Admin Platform Revenue (Visible to Admins) */}
