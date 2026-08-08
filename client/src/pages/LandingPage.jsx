@@ -99,7 +99,7 @@ const LandingPage = () => {
     },
     {
       q: 'How are drivers verified for safety?',
-      a: 'Every driver must submit a valid Driving Licence number and Vehicle Registration (RC), which is audited by administrators before listing.',
+      a: 'Every student must verify their official university email (@college.ac.in / .edu) or Student ID before booking or offering rides.',
     },
     {
       q: 'What happens if a driver cancels my confirmed ride?',

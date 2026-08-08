@@ -89,19 +89,6 @@ const OfferRidePage = () => {
           </p>
         </div>
 
-        {/* Verification Alert Banner if pending */}
-        {driverStatus !== 'verified' && (
-          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-200">
-            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-amber-300">Driver Licence Verification Required</p>
-              <p className="text-slate-300 mt-0.5">
-                To offer rides safely, please complete your driver licence verification under account settings.
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Form Card */}
         <div className="glass-card p-8 rounded-3xl border-slate-800 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
