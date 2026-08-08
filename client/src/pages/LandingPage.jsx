@@ -95,7 +95,7 @@ const LandingPage = () => {
     },
     {
       q: 'How does cost sharing & monetization work?',
-      a: 'Drivers set a small, fair cost contribution per passenger seat to split fuel expenses. The platform adds a 10% platform service fee (or 0% fee for Campus VIP Pass members).',
+      a: 'Drivers set a small, fair cost contribution per passenger seat to split fuel expenses. CampusRide currently charges 0% platform fee (100% of your contribution goes directly to fuel sharing).',
     },
     {
       q: 'How are drivers verified for safety?',

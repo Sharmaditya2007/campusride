@@ -81,14 +81,12 @@ const FareReceiptModal = ({ isOpen, onClose, transaction }) => {
 
             <div className="flex justify-between text-slate-300 print:text-slate-800">
               <span className="flex items-center gap-1">
-                Platform Service Fee (10%):
-                {isVip && (
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
-                    VIP 0% Fee
-                  </span>
-                )}
+                Platform Service Fee (0%):
+                <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
+                  FREE 0% Fee
+                </span>
               </span>
-              <span className="font-bold">{isVip ? '₹0' : `₹${transaction.platformFee || 0}`}</span>
+              <span className="font-bold">₹0</span>
             </div>
 
             <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-black text-white print:border-slate-300 print:text-slate-950">

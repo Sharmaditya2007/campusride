@@ -5,8 +5,8 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const crypto = require('crypto');
 
-// Commission Rate Configuration (10% platform fee)
-const PLATFORM_COMMISSION_RATE = 0.10;
+// Commission Rate Configuration (0% platform fee - Free launch phase)
+const PLATFORM_COMMISSION_RATE = 0;
 const VIP_PASS_PRICE = 199; // ₹199 per month
 
 /**

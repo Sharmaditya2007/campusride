@@ -14,8 +14,7 @@ const PaymentModal = ({ isOpen, onClose, rideRequest, onPaymentSuccess }) => {
 
   const ride = rideRequest.rideId || {};
   const requestedSeats = rideRequest.requestedSeats || 1;
-  const baseFare = (ride.contribution || 0) * requestedSeats;
-  const platformFee = Math.round(baseFare * 0.10);
+  const platformFee = 0;
   const totalAmount = baseFare + platformFee;
 
   const handleWalletPayment = async () => {
@@ -151,12 +150,12 @@ const PaymentModal = ({ isOpen, onClose, rideRequest, onPaymentSuccess }) => {
             </div>
             <div className="flex justify-between text-sm text-slate-300">
               <span className="flex items-center gap-1.5">
-                Platform Commission (10%)
-                <span className="text-xs bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30">
-                  Secured
+                Platform Commission (0%)
+                <span className="text-xs bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 font-semibold">
+                  FREE Launch Offer
                 </span>
               </span>
-              <span className="font-semibold text-white">₹{platformFee}</span>
+              <span className="font-semibold text-emerald-400">₹0</span>
             </div>
             <div className="border-t border-slate-800 pt-3 flex justify-between items-center">
               <span className="font-semibold text-slate-200">Total Payable</span>
