@@ -212,8 +212,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        </section>
-
         {/* INTERACTIVE ROUTE & HUB VISUALIZER */}
         <section className="py-12 max-w-6xl mx-auto px-4">
           <CampusRouteVisualizer />
