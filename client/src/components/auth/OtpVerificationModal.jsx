@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShieldCheck, Mail, CheckCircle2, RefreshCw, X, ArrowRight, MessageCircle, ExternalLink, Sparkles } from 'lucide-react';
+import { ShieldCheck, Mail, CheckCircle2, RefreshCw, X, ArrowRight, MessageCircle, ExternalLink } from 'lucide-react';
 import api from '../../services/api';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -280,27 +280,6 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta: initialOtpMe
             )}
           </div>
 
-          {!whatsappVerified && (
-            <div className="flex items-center justify-between text-[11px] bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
-              <span className="text-emerald-300 font-medium">
-                {currentOtpMeta?.whatsappOtp ? `💬 WhatsApp OTP: ${currentOtpMeta.whatsappOtp}` : `💬 Click 'Open WhatsApp' to view code`}
-              </span>
-              {currentOtpMeta?.whatsappOtp && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const digits = currentOtpMeta.whatsappOtp.split('');
-                    setWhatsappOtpDigits(digits);
-                    showToast('WhatsApp OTP autofilled!', 'success');
-                  }}
-                  className="text-emerald-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
-                >
-                  <Sparkles className="w-3 h-3" /> Auto-fill
-                </button>
-              )}
-            </div>
-          )}
-
           {!whatsappVerified ? (
             <form onSubmit={handleVerifyWhatsapp} className="space-y-3">
               {/* 6 OTP Input Boxes */}
@@ -359,27 +338,6 @@ const OtpVerificationModal = ({ isOpen, onClose, formData, otpMeta: initialOtpMe
               <span className="text-[10px] text-slate-400 font-semibold uppercase">Pending</span>
             )}
           </div>
-
-          {!emailVerified && (
-            <div className="flex items-center justify-between text-[11px] bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
-              <span className="text-emerald-300 font-medium">
-                {currentOtpMeta?.emailOtp ? `✉️ Email OTP: ${currentOtpMeta.emailOtp}` : `✉️ Check your inbox & spam folder`}
-              </span>
-              {currentOtpMeta?.emailOtp && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const digits = currentOtpMeta.emailOtp.split('');
-                    setEmailOtpDigits(digits);
-                    showToast('Email OTP autofilled!', 'success');
-                  }}
-                  className="text-emerald-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
-                >
-                  <Sparkles className="w-3 h-3" /> Auto-fill
-                </button>
-              )}
-            </div>
-          )}
 
           {!emailVerified ? (
             <form onSubmit={handleVerifyEmail} className="space-y-3">
