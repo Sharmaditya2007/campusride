@@ -10,6 +10,7 @@ const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logoutUser } = useAuth();
   const { unreadCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sosModalOpen, setSosModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
