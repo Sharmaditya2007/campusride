@@ -74,18 +74,6 @@ const Footer = () => {
                 <span>24/7 Campus Helpline Active</span>
               </div>
             </div>
-
-            <div className="pt-2">
-              <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  VIP Pass
-                </span>
-                <Link to="/wallet" className="text-amber-400 font-bold hover:underline">
-                  0% Fee Upgrade
-                </Link>
-              </div>
-            </div>
           </div>
 
         </div>
