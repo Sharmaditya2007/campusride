@@ -5,7 +5,7 @@ import QuickBoardingModal from '../components/rides/QuickBoardingModal';
 import PaymentModal from '../components/PaymentModal';
 import { useNotifications } from '../context/NotificationContext';
 import api from '../services/api';
-import { Car, Clock, MapPin, Check, X, QrCode, AlertCircle, RefreshCw, CreditCard, ShieldCheck } from 'lucide-react';
+import { Car, Clock, MapPin, Check, X, QrCode, AlertCircle, RefreshCw, CreditCard, ShieldCheck, Phone } from 'lucide-react';
 
 const MyRidesPage = () => {
   const { showToast } = useNotifications();
@@ -189,6 +189,15 @@ const MyRidesPage = () => {
                     <div>
                       <span className="text-slate-400">Driver</span>
                       <p className="font-semibold text-slate-200">{b.rideId?.driverId?.fullName}</p>
+                      {(b.status === 'accepted' || b.status === 'completed') && (
+                        <a
+                          href={`tel:${b.rideId?.driverId?.phone}`}
+                          className="inline-flex items-center gap-1 mt-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg hover:bg-emerald-500/20 transition"
+                          title="Call Driver"
+                        >
+                          <Phone className="w-3 h-3" /> {b.rideId?.driverId?.phone || 'Contact Driver'}
+                        </a>
+                      )}
                     </div>
                     <div>
                       <span className="text-slate-400">Vehicle</span>
@@ -266,6 +275,15 @@ const MyRidesPage = () => {
                           <div>
                             <span className="font-bold text-white">{req.passengerId?.fullName}</span>
                             <span className="text-slate-400 block">Requested {req.requestedSeats} seat(s)</span>
+                            {(req.status === 'accepted' || req.status === 'completed') && (
+                              <a
+                                href={`tel:${req.passengerId?.phone}`}
+                                className="inline-flex items-center gap-1 mt-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg hover:bg-emerald-500/20 transition"
+                                title="Call Passenger"
+                              >
+                                <Phone className="w-3 h-3" /> {req.passengerId?.phone || 'Contact Passenger'}
+                              </a>
+                            )}
                           </div>
 
                           {req.status === 'pending' ? (

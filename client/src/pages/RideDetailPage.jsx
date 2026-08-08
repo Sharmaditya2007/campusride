@@ -6,7 +6,7 @@ import MatchScoreBadge from '../components/rides/MatchScoreBadge';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import UserAvatar from '../components/common/UserAvatar';
-import { MapPin, Clock, ShieldCheck, Star, Users, Car, AlertTriangle, Send, QrCode, ArrowLeft, Share2 } from 'lucide-react';
+import { MapPin, Clock, ShieldCheck, Star, Users, Car, AlertTriangle, Send, QrCode, ArrowLeft, Share2, Phone } from 'lucide-react';
 
 const RideDetailPage = () => {
   const { id } = useParams();
@@ -236,6 +236,18 @@ const RideDetailPage = () => {
                   <Star className="w-3.5 h-3.5 fill-amber-400" />
                   <span>{driver.rating || 4.9} ({driver.ratingCount || 24} ratings)</span>
                 </div>
+
+                {driver.phone && (
+                  <div className="pt-2 border-t border-slate-800/80">
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Verified Driver Contact</span>
+                    <a
+                      href={`tel:${driver.phone}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-bold hover:bg-emerald-500/20 transition"
+                    >
+                      <Phone className="w-3.5 h-3.5" /> {driver.phone}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 

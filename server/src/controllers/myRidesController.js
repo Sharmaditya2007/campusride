@@ -41,7 +41,7 @@ const getBookedRides = async (req, res, next) => {
         .populate({
           path: 'rideId',
           populate: [
-            { path: 'driverId', select: 'fullName university rating profileImage verificationStatus' },
+            { path: 'driverId', select: 'fullName email phone university rating profileImage verificationStatus' },
             { path: 'vehicleId' },
           ],
         })

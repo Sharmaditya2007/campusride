@@ -172,7 +172,7 @@ const getGoingNowRides = async (req, res, next) => {
 const getRideById = async (req, res, next) => {
   try {
     const ride = await Ride.findById(req.params.id)
-      .populate('driverId', 'fullName email university rating ratingCount verificationStatus profileImage emergencyContacts')
+      .populate('driverId', 'fullName email phone university rating ratingCount verificationStatus profileImage emergencyContacts')
       .populate('vehicleId');
 
     if (!ride) {
