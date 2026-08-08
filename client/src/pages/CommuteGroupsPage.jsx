@@ -3,7 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import { useNotifications } from '../context/NotificationContext';
 import LocationAutocompleteInput from '../components/common/LocationAutocompleteInput';
 import api from '../services/api';
-import { Users, Plus, ShieldCheck, MapPin, Clock, X, Check, Sparkles } from 'lucide-react';
+import { Users, Plus, ShieldCheck, MapPin, Clock, X, Check, Sparkles, UserMinus } from 'lucide-react';
 
 const CommuteGroupsPage = () => {
   const { showToast } = useNotifications();
@@ -62,6 +62,26 @@ const CommuteGroupsPage = () => {
     } catch (err) {
       showToast(err.message || `Joined ${group.name}!`, 'success');
       setJoinedGroupIds((prev) => [...prev, group._id]);
+    }
+  };
+
+  const handleLeave = async (group) => {
+    try {
+      if (group._id && !group._id.startsWith('grp_')) {
+        await api.post(`/features/commute-groups/${group._id}/leave`);
+      }
+      setJoinedGroupIds((prev) => prev.filter((id) => id !== group._id));
+      setGroups((prev) =>
+        prev.map((g) =>
+          g._id === group._id
+            ? { ...g, membersCount: Math.max(0, (g.members?.length || g.membersCount || 2) - 1) }
+            : g
+        )
+      );
+      showToast(`Left ${group.name}.`, 'info');
+    } catch (err) {
+      setJoinedGroupIds((prev) => prev.filter((id) => id !== group._id));
+      showToast(`Left ${group.name}.`, 'info');
     }
   };
 
@@ -193,23 +213,23 @@ const CommuteGroupsPage = () => {
                       <Users className="w-3.5 h-3.5 text-slate-500" />
                       {currentMembers} of {g.maxMembers || 4} Members
                     </span>
-                    <button
-                      onClick={() => handleJoin(g)}
-                      disabled={isJoined}
-                      className={`px-4 py-2 rounded-xl font-bold transition flex items-center gap-1 ${
-                        isJoined
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default'
-                          : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/20'
-                      }`}
-                    >
-                      {isJoined ? (
-                        <>
-                          <Check className="w-4 h-4" /> Joined Cohort
-                        </>
-                      ) : (
-                        'Join Cohort'
-                      )}
-                    </button>
+                    {isJoined ? (
+                      <button
+                        onClick={() => handleLeave(g)}
+                        className="px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 hover:text-white"
+                        title="Click to leave this cohort group"
+                      >
+                        <UserMinus className="w-4 h-4 text-rose-400" />
+                        Leave Cohort
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleJoin(g)}
+                        className="px-4 py-2 rounded-xl font-bold transition flex items-center gap-1 bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+                      >
+                        Join Cohort
+                      </button>
+                    )}
                   </div>
                 </div>
               );

@@ -158,6 +158,26 @@ const joinCommuteGroup = async (req, res, next) => {
   }
 };
 
+const leaveCommuteGroup = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let group = await CommuteGroup.findById(id);
+    if (!group) {
+      return errorResponse(res, 404, 'Commute group not found');
+    }
+
+    if (req.user) {
+      const userIdStr = req.user._id.toString();
+      group.members = group.members.filter((m) => m && m.toString() !== userIdStr);
+      await group.save();
+    }
+
+    return successResponse(res, 200, 'Left commute group successfully!', group);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // 3. Environmental Impact Calculator
 const getEnvironmentalImpact = async (req, res, next) => {
   try {
@@ -249,6 +269,7 @@ module.exports = {
   getCommuteGroups,
   createCommuteGroup,
   joinCommuteGroup,
+  leaveCommuteGroup,
   getEnvironmentalImpact,
   submitReport,
   triggerSOS,
