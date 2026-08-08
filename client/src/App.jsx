@@ -19,7 +19,6 @@ import VehicleManagementPage from './pages/VehicleManagementPage';
 import ProfilePage from './pages/ProfilePage';
 import CommuteGroupsPage from './pages/CommuteGroupsPage';
 import EnvironmentalImpactPage from './pages/EnvironmentalImpactPage';
-import SafetyCenterPage from './pages/SafetyCenterPage';
 import NotificationsPage from './pages/NotificationsPage';
 import GoingNowPage from './pages/GoingNowPage';
 import WalletPage from './pages/WalletPage';
@@ -47,7 +46,6 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/commute-groups" element={<CommuteGroupsPage />} />
             <Route path="/environmental-impact" element={<EnvironmentalImpactPage />} />
-            <Route path="/safety" element={<SafetyCenterPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/going-now" element={<GoingNowPage />} />
             <Route path="/wallet" element={<WalletPage />} />

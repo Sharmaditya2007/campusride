@@ -89,16 +89,6 @@ const Navbar = () => {
               <Leaf className="w-4 h-4 text-green-400" />
               Impact
             </Link>
-
-            <Link
-              to="/safety"
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                isActive('/safety') ? 'text-emerald-400 bg-slate-900' : 'text-slate-300 hover:text-white hover:bg-slate-900/50'
-              }`}
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Safety
-            </Link>
           </div>
 
             {/* User Controls / Auth Buttons */}
@@ -210,9 +200,6 @@ const Navbar = () => {
           </Link>
           <Link to="/environmental-impact" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-200">
             Eco Impact Dashboard
-          </Link>
-          <Link to="/safety" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-200">
-            Safety Center
           </Link>
           {isAuthenticated ? (
             <>
