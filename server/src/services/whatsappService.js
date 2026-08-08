@@ -7,13 +7,18 @@
  */
 const sendWhatsAppOtp = async ({ toPhone, phoneOtp }) => {
   try {
-    // Sanitize and format phone number for WhatsApp international standard (e.g. 919876543210)
-    let cleanPhone = (toPhone || '').replace(/[^0-9]/g, '');
-    if (cleanPhone.length === 10) {
-      cleanPhone = '91' + cleanPhone;
+    // Robust sanitization and international format (+91 for India by default)
+    let digitsOnly = (toPhone || '').replace(/[^0-9]/g, '');
+    let cleanPhone = digitsOnly;
+    if (digitsOnly.length === 10) {
+      cleanPhone = '91' + digitsOnly;
+    } else if (digitsOnly.length === 11 && digitsOnly.startsWith('0')) {
+      cleanPhone = '91' + digitsOnly.slice(1);
+    } else if (digitsOnly.length > 10 && !digitsOnly.startsWith('91')) {
+      cleanPhone = '91' + digitsOnly.slice(-10);
     }
 
-    const messageText = `🔑 *CollegeRide Security OTP*: Your 6-digit verification code is *${phoneOtp}*. Valid for 5 minutes. Do not share with anyone.`;
+    const messageText = `🔑 *CampusRide Security OTP*: Your 6-digit verification code is *${phoneOtp}*. Valid for 5 minutes. Do not share with anyone.`;
     const whatsAppUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(messageText)}`;
 
     const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -22,7 +27,7 @@ const sendWhatsAppOtp = async ({ toPhone, phoneOtp }) => {
     // 1. Official Meta WhatsApp Cloud API Endpoint Call
     if (accessToken && phoneNumberId) {
       try {
-        const metaApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+        const metaApiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
         
         // Attempt text message dispatch
         let response = await fetch(metaApiUrl, {
@@ -80,7 +85,7 @@ const sendWhatsAppOtp = async ({ toPhone, phoneOtp }) => {
         console.error('[Meta WhatsApp Cloud API Exception]:', metaErr.message);
       }
     } else {
-      console.log('[WhatsApp Service Note] WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID missing in .env.');
+      console.log('[WhatsApp Service Note] WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID missing in environment variables.');
     }
 
     return {
