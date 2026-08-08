@@ -5,11 +5,11 @@ import { Leaf, IndianRupee, Car, Award, BarChart3, Info } from 'lucide-react';
 
 const EnvironmentalImpactPage = () => {
   const [stats, setStats] = useState({
-    totalSharedRides: 1420,
-    totalKilometersShared: 28400,
-    estimatedFuelSavedLiters: 2366,
-    estimatedMoneySavedINR: 224770,
-    estimatedCO2ReducedKg: 5444.8,
+    totalSharedRides: 0,
+    totalKilometersShared: 0,
+    estimatedFuelSavedLiters: 0,
+    estimatedMoneySavedINR: 0,
+    estimatedCO2ReducedKg: 0,
   });
 
   useEffect(() => {

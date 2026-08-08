@@ -98,15 +98,32 @@ const createCommuteGroup = async (req, res, next) => {
 // 3. Environmental Impact Calculator
 const getEnvironmentalImpact = async (req, res, next) => {
   try {
-    // Dynamic impact calculation based on system stats (or sample benchmark data clearly labeled)
+    const Ride = require('../models/Ride');
+    const RideRequest = require('../models/RideRequest');
+
+    let totalRidesCount = 0;
+    let acceptedRequestsCount = 0;
+
+    try {
+      totalRidesCount = await Ride.countDocuments({});
+      acceptedRequestsCount = await RideRequest.countDocuments({ status: 'accepted' });
+    } catch (dbErr) {}
+
+    const totalSharedRides = totalRidesCount + acceptedRequestsCount;
+    const avgTripKm = 15;
+    const totalKilometersShared = totalSharedRides * avgTripKm;
+    const estimatedFuelSavedLiters = Number((totalKilometersShared / 12).toFixed(1));
+    const estimatedMoneySavedINR = Math.round(estimatedFuelSavedLiters * 95);
+    const estimatedCO2ReducedKg = Number((estimatedFuelSavedLiters * 2.3).toFixed(1));
+
     const stats = {
-      totalSharedRides: 1420,
-      totalKilometersShared: 28400,
-      estimatedFuelSavedLiters: 2366,
-      estimatedMoneySavedINR: 224770,
-      estimatedCO2ReducedKg: 5444.8,
+      totalSharedRides,
+      totalKilometersShared,
+      estimatedFuelSavedLiters,
+      estimatedMoneySavedINR,
+      estimatedCO2ReducedKg,
       assumptions: {
-        avgTripKm: 20,
+        avgTripKm: 15,
         fuelEfficiencyKmPerLiter: 12,
         fuelPricePerLiterINR: 95,
         co2EmissionKgPerLiter: 2.3,
