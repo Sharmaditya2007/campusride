@@ -146,17 +146,6 @@ const ProfilePage = () => {
 
         </div>
 
-        {/* Quick Links Garage & Verification */}
-        <div className="text-xs font-bold">
-          <Link
-            to="/vehicles"
-            className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-850 flex items-center justify-between"
-          >
-            <span className="flex items-center gap-2"><Car className="w-4 h-4 text-emerald-400" /> Manage Vehicles</span>
-            <span>→</span>
-          </Link>
-        </div>
-
         {/* Add Contact Modal */}
         {showAddContact && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
