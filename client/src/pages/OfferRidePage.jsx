@@ -20,6 +20,8 @@ const OfferRidePage = () => {
     availableSeats: 3,
     contribution: 50,
     vehicleId: '',
+    registrationNumber: '',
+    vehicleModel: '',
     notes: 'Non-smoking carpool, please be on time at pickup hub.',
     isRecurring: false,
     recurringDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
@@ -35,7 +37,13 @@ const OfferRidePage = () => {
         const vRes = await api.get('/vehicles');
         if (vRes.success && vRes.data.length > 0) {
           setVehicles(vRes.data);
-          setFormData((prev) => ({ ...prev, vehicleId: vRes.data[0]._id }));
+          const firstVeh = vRes.data[0];
+          setFormData((prev) => ({
+            ...prev,
+            vehicleId: firstVeh._id,
+            registrationNumber: firstVeh.registrationNumber || '',
+            vehicleModel: firstVeh.model || '',
+          }));
         }
 
         const verRes = await api.get('/verification/status');
@@ -183,6 +191,69 @@ const OfferRidePage = () => {
                     className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Vehicle Details */}
+            <div className="border-t border-slate-800/80 pt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <Car className="w-4 h-4" /> Vehicle Information
+                </span>
+                {vehicles.length > 0 && (
+                  <select
+                    value={formData.vehicleId}
+                    onChange={(e) => {
+                      const selected = vehicles.find((v) => v._id === e.target.value);
+                      if (selected) {
+                        setFormData({
+                          ...formData,
+                          vehicleId: selected._id,
+                          registrationNumber: selected.registrationNumber || '',
+                          vehicleModel: selected.model || '',
+                        });
+                      }
+                    }}
+                    className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-500"
+                  >
+                    {vehicles.map((v) => (
+                      <option key={v._id} value={v._id}>
+                        {v.model} ({v.registrationNumber})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Vehicle Registration / Plate No. *</label>
+                  <div className="relative">
+                    <Car className="w-4 h-4 text-emerald-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      value={formData.registrationNumber}
+                      onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value.toUpperCase() })}
+                      placeholder="e.g. PB-01-AB-1234"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 uppercase font-mono font-bold focus:outline-none focus:border-emerald-500 placeholder:normal-case placeholder:font-sans placeholder:font-normal"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Car Make & Model</label>
+                  <div className="relative">
+                    <Car className="w-4 h-4 text-teal-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      value={formData.vehicleModel}
+                      onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
+                      placeholder="e.g. Maruti Swift / Honda City"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

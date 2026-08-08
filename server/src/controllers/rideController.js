@@ -16,6 +16,9 @@ const offerRide = async (req, res, next) => {
       availableSeats,
       contribution,
       vehicleId,
+      registrationNumber,
+      vehicleNumber,
+      vehicleModel,
       notes,
       pickupPoints,
       isRecurring,
@@ -32,21 +35,34 @@ const offerRide = async (req, res, next) => {
       return errorResponse(res, 403, 'Student verification required before offering rides');
     }
 
+    const plateNumber = (registrationNumber || vehicleNumber || '').trim();
+    const carModelName = (vehicleModel || '').trim();
+
     let veh;
     if (vehicleId) {
       veh = await Vehicle.findById(vehicleId);
+      if (veh && (plateNumber || carModelName)) {
+        if (plateNumber) veh.registrationNumber = plateNumber.toUpperCase();
+        if (carModelName) veh.model = carModelName;
+        await veh.save();
+      }
     } else {
       veh = await Vehicle.findOne({ ownerId: req.user._id });
+      if (veh && (plateNumber || carModelName)) {
+        if (plateNumber) veh.registrationNumber = plateNumber.toUpperCase();
+        if (carModelName) veh.model = carModelName;
+        await veh.save();
+      }
     }
 
     if (!veh) {
-      // Auto create default vehicle if none
+      // Create new vehicle with driver's provided plate number and model
       veh = await Vehicle.create({
         ownerId: req.user._id,
         vehicleType: 'Car',
-        model: 'Student Car',
-        registrationNumber: 'PB-01-EXP-' + Math.floor(1000 + Math.random() * 9000),
-        capacity: Number(availableSeats),
+        model: carModelName || 'Student Car',
+        registrationNumber: plateNumber ? plateNumber.toUpperCase() : ('PB-01-EXP-' + Math.floor(1000 + Math.random() * 9000)),
+        capacity: Math.max(Number(availableSeats) + 1, 4),
       });
     }
 

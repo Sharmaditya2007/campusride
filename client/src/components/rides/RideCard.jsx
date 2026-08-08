@@ -82,13 +82,18 @@ const RideCard = ({ ride, onRequest }) => {
           </span>
         </div>
 
-        <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/60">
+        <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/60" title={`Vehicle: ${vehicle.model || 'Car'} | Plate: ${vehicle.registrationNumber || 'Verified'}`}>
           <span className="text-slate-400 text-[10px] uppercase font-semibold flex items-center gap-1">
             <Car className="w-3 h-3 text-emerald-400" /> Vehicle
           </span>
-          <span className="font-bold text-slate-200 mt-0.5 truncate max-w-[80px]">
+          <span className="font-bold text-slate-200 mt-0.5 truncate max-w-[100px] text-center">
             {vehicle.model || 'Car'}
           </span>
+          {vehicle.registrationNumber && (
+            <span className="text-[9px] font-mono text-emerald-400 font-bold">
+              {vehicle.registrationNumber}
+            </span>
+          )}
         </div>
       </div>
 
