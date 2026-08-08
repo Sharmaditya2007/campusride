@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import api from '../services/api';
-import { Leaf, IndianRupee, Car, Award, BarChart3, Info } from 'lucide-react';
+import { Leaf, Car, Award, BarChart3, Info } from 'lucide-react';
 
 const EnvironmentalImpactPage = () => {
   const [stats, setStats] = useState({
@@ -37,7 +37,7 @@ const EnvironmentalImpactPage = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="glass-card p-6 rounded-3xl border-slate-800 space-y-2">
             <Leaf className="w-6 h-6 text-emerald-400" />
             <span className="text-slate-400 text-xs font-medium block">CO₂ Emissions Reduced</span>
@@ -55,12 +55,6 @@ const EnvironmentalImpactPage = () => {
             <span className="text-slate-400 text-xs font-medium block">Fuel Conserved</span>
             <span className="text-2xl font-black text-green-400 block">{stats.estimatedFuelSavedLiters.toLocaleString()} Liters</span>
           </div>
-
-          <div className="glass-card p-6 rounded-3xl border-slate-800 space-y-2">
-            <IndianRupee className="w-6 h-6 text-amber-400" />
-            <span className="text-slate-400 text-xs font-medium block">Student Money Saved</span>
-            <span className="text-2xl font-black text-amber-400 block">₹{stats.estimatedMoneySavedINR.toLocaleString()}</span>
-          </div>
         </div>
 
         {/* Formula Explanations */}
@@ -70,8 +64,7 @@ const EnvironmentalImpactPage = () => {
           </h3>
           <p className="leading-relaxed text-slate-400">
             • <b>CO₂ Reduction:</b> Calculated at 2.3 kg CO₂ saved per liter of petrol saved by avoiding solo vehicle trips.<br />
-            • <b>Fuel Calculation:</b> Based on an average student vehicle efficiency of 12 km/L across campus carpools.<br />
-            • <b>Financial Savings:</b> Estimated based on standard fuel prices (₹95/L) split among passenger peers.
+            • <b>Fuel Calculation:</b> Based on an average student vehicle efficiency of 12 km/L across campus carpools.
           </p>
         </div>
 
