@@ -36,6 +36,9 @@ const MyRidesPage = () => {
       }
       if (offeredRes.success && offeredRes.data) {
         setOfferedRides(offeredRes.data);
+        if (offeredRes.data.length > 0 && (!bookedRes.data || bookedRes.data.length === 0)) {
+          setActiveTab('offered');
+        }
       }
     } catch (err) {
       showToast('Failed to load rides', 'error');
@@ -43,6 +46,11 @@ const MyRidesPage = () => {
       setLoading(false);
     }
   };
+
+  const pendingRequestsCount = offeredRides.reduce(
+    (acc, ride) => acc + (ride.incomingRequests ? ride.incomingRequests.filter((r) => r.status === 'pending').length : 0),
+    0
+  );
 
   useEffect(() => {
     loadData();
@@ -83,7 +91,7 @@ const MyRidesPage = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white">My Campus Rides</h1>
-            <p className="text-slate-400 text-xs sm:text-sm">Manage your offered rides, bookings, and payments.</p>
+            <p className="text-slate-400 text-xs sm:text-sm">Manage your offered rides, bookings, and incoming requests.</p>
           </div>
 
           <div className="flex rounded-2xl bg-slate-900 p-1.5 border border-slate-800 text-xs font-bold">
@@ -97,11 +105,16 @@ const MyRidesPage = () => {
             </button>
             <button
               onClick={() => setActiveTab('offered')}
-              className={`px-5 py-2 rounded-xl transition-all ${
+              className={`px-5 py-2 rounded-xl transition-all relative flex items-center gap-2 ${
                 activeTab === 'offered' ? 'bg-emerald-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Rides I Offered ({offeredRides.length})
+              <span>Rides I Offered ({offeredRides.length})</span>
+              {pendingRequestsCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                  {pendingRequestsCount} PENDING
+                </span>
+              )}
             </button>
           </div>
         </div>
