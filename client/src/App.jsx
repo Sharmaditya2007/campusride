@@ -15,7 +15,6 @@ import OfferRidePage from './pages/OfferRidePage';
 import RideDetailPage from './pages/RideDetailPage';
 import MyRidesPage from './pages/MyRidesPage';
 import StudentVerificationPage from './pages/StudentVerificationPage';
-import DriverVerificationPage from './pages/DriverVerificationPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
 import ProfilePage from './pages/ProfilePage';
 import CommuteGroupsPage from './pages/CommuteGroupsPage';
@@ -44,7 +43,6 @@ function App() {
             <Route path="/ride/:id" element={<RideDetailPage />} />
             <Route path="/my-rides" element={<MyRidesPage />} />
             <Route path="/verify-student" element={<StudentVerificationPage />} />
-            <Route path="/verify-driver" element={<DriverVerificationPage />} />
             <Route path="/vehicles" element={<VehicleManagementPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/commute-groups" element={<CommuteGroupsPage />} />

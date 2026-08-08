@@ -147,19 +147,12 @@ const ProfilePage = () => {
         </div>
 
         {/* Quick Links Garage & Verification */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold">
+        <div className="text-xs font-bold">
           <Link
             to="/vehicles"
             className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-850 flex items-center justify-between"
           >
             <span className="flex items-center gap-2"><Car className="w-4 h-4 text-emerald-400" /> Manage Vehicles</span>
-            <span>→</span>
-          </Link>
-          <Link
-            to="/verify-driver"
-            className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-850 flex items-center justify-between"
-          >
-            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-teal-400" /> Driver Licence Verification</span>
             <span>→</span>
           </Link>
         </div>
