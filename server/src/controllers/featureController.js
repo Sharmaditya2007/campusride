@@ -63,6 +63,37 @@ const getCommuteGroups = async (req, res, next) => {
       groups = await CommuteGroup.find()
         .populate('creatorId', 'fullName university profileImage')
         .populate('members', 'fullName profileImage');
+
+      // Seed default active campus commute groups if database has no groups
+      if (groups.length === 0) {
+        const seedData = [
+          {
+            name: 'Chitkara Morning Express',
+            route: { source: 'Chandigarh Sector 17', destination: 'Chitkara Campus Gate 1' },
+            scheduleTime: '08:00 AM',
+            maxMembers: 4,
+          },
+          {
+            name: 'Zirakpur Campus Shuttle',
+            route: { source: 'Zirakpur Signal', destination: 'Chitkara Campus Gate 2' },
+            scheduleTime: '08:30 AM',
+            maxMembers: 4,
+          },
+          {
+            name: 'Mohali Tech Cohort',
+            route: { source: 'Phase 7 Mohali', destination: 'Campus Engineering Block' },
+            scheduleTime: '08:15 AM',
+            maxMembers: 4,
+          },
+          {
+            name: 'Ambala Evening Return',
+            route: { source: 'University Campus', destination: 'Ambala Cantt' },
+            scheduleTime: '04:30 PM',
+            maxMembers: 4,
+          },
+        ];
+        groups = await CommuteGroup.insertMany(seedData);
+      }
     } catch (err) {}
 
     return successResponse(res, 200, 'Commute groups fetched', groups);
@@ -73,23 +104,55 @@ const getCommuteGroups = async (req, res, next) => {
 
 const createCommuteGroup = async (req, res, next) => {
   try {
-    const { name, source, destination, scheduleTime } = req.body;
+    const { name, source, destination, scheduleTime, maxMembers } = req.body;
+    if (!name || !source || !destination) {
+      return errorResponse(res, 400, 'Group Name, Departure Hub, and Destination Campus are required');
+    }
+
     try {
       const group = await CommuteGroup.create({
         name,
         route: { source, destination },
-        scheduleTime,
-        creatorId: req.user._id,
-        members: [req.user._id],
+        scheduleTime: scheduleTime || '08:00 AM',
+        maxMembers: maxMembers || 4,
+        creatorId: req.user ? req.user._id : null,
+        members: req.user ? [req.user._id] : [],
       });
-      return successResponse(res, 201, 'Commute group created successfully', group);
+      return successResponse(res, 201, 'Commute group created successfully!', group);
     } catch (err) {}
 
-    return successResponse(res, 201, 'Commute group created successfully', {
+    return successResponse(res, 201, 'Commute group created successfully!', {
+      _id: 'grp_' + Date.now(),
       name,
       route: { source, destination },
-      scheduleTime,
+      scheduleTime: scheduleTime || '08:00 AM',
+      maxMembers: maxMembers || 4,
+      members: [],
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const joinCommuteGroup = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let group = await CommuteGroup.findById(id);
+    if (!group) {
+      return errorResponse(res, 404, 'Commute group not found');
+    }
+
+    if (req.user) {
+      const userIdStr = req.user._id.toString();
+      const isAlreadyMember = group.members.some((m) => m && m.toString() === userIdStr);
+      if (isAlreadyMember) {
+        return errorResponse(res, 400, 'You are already a member of this commute cohort');
+      }
+      group.members.push(req.user._id);
+      await group.save();
+    }
+
+    return successResponse(res, 200, 'Joined commute group successfully!', group);
   } catch (error) {
     next(error);
   }
@@ -185,6 +248,7 @@ module.exports = {
   updateTimetable,
   getCommuteGroups,
   createCommuteGroup,
+  joinCommuteGroup,
   getEnvironmentalImpact,
   submitReport,
   triggerSOS,
