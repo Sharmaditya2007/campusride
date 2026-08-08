@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from './UserAvatar';
-import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard, Wallet } from 'lucide-react';
+import { Car, ShieldCheck, Bell, User, LogOut, Menu, X, PlusCircle, Calendar, Users, Leaf, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logoutUser } = useAuth();
@@ -130,13 +130,6 @@ const Navbar = () => {
 
                 {/* User Dropdown/Profile Pill */}
                 <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
-                  <Link
-                    to="/wallet"
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/20 flex items-center gap-1 transition-all"
-                  >
-                    <Wallet className="w-3.5 h-3.5" />
-                    Wallet
-                  </Link>
                   <Link
                     to="/my-rides"
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
