@@ -137,3 +137,24 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Time & Date Clock Picker Enhancements */
+input[type="time"], input[type="date"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(120deg);
+  opacity: 0.8;
+  padding: 2px;
+  transition: all 0.2s ease;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}

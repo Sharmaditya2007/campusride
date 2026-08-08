@@ -118,27 +118,35 @@ const OfferRidePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Ride Date</label>
-                <div className="relative">
-                  <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <div className="relative cursor-pointer" onClick={(e) => {
+                  const input = e.currentTarget.querySelector('input');
+                  if (input && input.showPicker) try { input.showPicker(); } catch(err){}
+                }}>
+                  <Calendar className="w-4 h-4 text-emerald-400 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Departure Time</label>
-                <div className="relative">
-                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <label className="block font-semibold text-slate-300 mb-1">Departure Time (Clock Selector)</label>
+                <div className="relative cursor-pointer" onClick={(e) => {
+                  const input = e.currentTarget.querySelector('input');
+                  if (input && input.showPicker) try { input.showPicker(); } catch(err){}
+                }}>
+                  <Clock className="w-4 h-4 text-emerald-400 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type="time"
                     value={formData.departureTime}
                     onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     required
                   />
                 </div>
